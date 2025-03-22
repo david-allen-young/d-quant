@@ -1,5 +1,5 @@
 #include "MidiTrackParser.h"
-#include "../src/Point.h"
+#include "Point.h"
 
 enum MidiControllers
 {
