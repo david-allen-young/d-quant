@@ -1,5 +1,5 @@
 cmake_minimum_required(VERSION 3.16)
-project(DQuant LANGUAGES CXX)
+project(dquant LANGUAGES CXX)
 
 # Use C++17
 set(CMAKE_CXX_STANDARD 17)
