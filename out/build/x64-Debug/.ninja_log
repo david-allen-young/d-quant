@@ -117,3 +117,5 @@
 3352	3393	7643709332818926	external/Catch2/src/Catch2Maind.lib	c4335181bab0fedb
 2609	3431	7643709325450151	tests/unit/CMakeFiles/dquant_tests.dir/test_core.cpp.obj	e65fd4b82686666c
 3432	3849	7643709333690432	tests/unit/dquant_tests.exe	dbe1553067cd049b
+13	272	7643711248074439	src/main/CMakeFiles/dquant_cli.dir/main.cpp.obj	6b9fd7741d243bcd
+273	530	7643711250667128	src/main/dquant_cli.exe	5383fc7f96a99fe3
