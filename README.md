@@ -18,3 +18,10 @@ Take rigid, computer-generated MIDI from music notation software and transform i
 git clone https://github.com/yourusername/d-quant.git
 cd d-quant
 # install dependencies or build instructions here
+```
+
+## 📦 Modules
+* rhythmizer/ – Timing variation engine
+* dynamizer/ – Velocity and loudness transformation
+* intonizer/ – Pitch modulation and expressive tuning
+* core/ – MIDI file parsing and processing logic
