@@ -1,0 +1,19 @@
+BasedOnStyle: LLVM
+BreakBeforeBraces: Allman
+BraceWrapping:
+  AfterClass: true
+  AfterControlStatement: true
+  AfterEnum: true
+  AfterFunction: true
+  AfterNamespace: true
+  AfterStruct: true
+  AfterUnion: true
+  BeforeElse: true
+IndentWidth: 4
+UseTab: Never
+AllowShortFunctionsOnASingleLine: None
+IndentAccessModifiers: true
+AccessModifierOffset: 0
+PointerAlignment: Left
+ColumnLimit: 0
+
