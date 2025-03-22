@@ -63,3 +63,6 @@ __pycache__/
 # === Optional: Ignore generated WAVE files ===
 *.wav
 *.wave
+
+# === External ===
+external/Catch2/
