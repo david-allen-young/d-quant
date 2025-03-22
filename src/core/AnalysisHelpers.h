@@ -1,5 +1,5 @@
 #pragma once
-#include "../src/Point.h"
+#include "Point.h"
 #include <vector>
 #include <algorithm>
 #include <fstream>
