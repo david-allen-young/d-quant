@@ -11,6 +11,9 @@ if(${CMAKE_SOURCE_DIR} STREQUAL ${CMAKE_BINARY_DIR})
   message(FATAL_ERROR "In-source builds are not allowed. Please create a separate build directory.")
 endif()
 
+# Add Catch2 (manually cloned into external/)
+add_subdirectory(external/Catch2)
+
 # Add source subdirectories (each is a module or component)
 add_subdirectory(src/core)
 add_subdirectory(src/rhythmizer)
@@ -18,5 +21,6 @@ add_subdirectory(src/dynamizer)
 add_subdirectory(src/intonizer)
 add_subdirectory(src/main)
 
-# Optional: Add test suite later
-# add_subdirectory(tests/unit)
+# Add test suite subdirectories
+add_subdirectory(tests/unit)
+
