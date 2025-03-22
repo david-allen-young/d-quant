@@ -64,5 +64,3 @@ __pycache__/
 *.wav
 *.wave
 
-# === External ===
-external/Catch2/
