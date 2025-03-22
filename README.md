@@ -25,3 +25,9 @@ cd d-quant
 * dynamizer/ – Velocity and loudness transformation
 * intonizer/ – Pitch modulation and expressive tuning
 * core/ – MIDI file parsing and processing logic
+
+## 📄 License
+Apache 2.0
+
+# 
+_Transform your MIDI. Express your music._
