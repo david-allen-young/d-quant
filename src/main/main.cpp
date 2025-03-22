@@ -1,10 +1,12 @@
-﻿// d-quant-vs.cpp : Defines the entry point for the application.
-//
-
+﻿#include "rhythmizer.h"
 #include <iostream>
 
 int main()
 {
-	std::cout << "Hello CMake." << std::endl;
-	return 0;
+    std::string midiFile = "C:/GitHub/d-quant/assets/midi/Dynamizer_Training_CRE_pp_to_ff_0001.midi";
+    std::string outputDir = "C:/GitHub/d-quant/assets/output_csv";
+
+    run_midi_to_envelope_csv(midiFile, outputDir);
+
+    return 0;
 }

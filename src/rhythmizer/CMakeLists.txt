@@ -1,6 +1,5 @@
 add_library(rhythmizer
     rhythmizer.cpp
-    Rhythmizer_Analysis.cpp
 )
 
 target_include_directories(rhythmizer PUBLIC ${CMAKE_CURRENT_SOURCE_DIR})
