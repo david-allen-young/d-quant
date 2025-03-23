@@ -1,4 +1,4 @@
-﻿#include "rhythmizer.h"
+﻿#include "dynamizer.h"
 #include <iostream>
 
 int main()
