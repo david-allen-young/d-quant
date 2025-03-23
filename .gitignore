@@ -30,7 +30,6 @@ compile_commands.json
 *.lib
 *.exp
 
-# VS-generated folders
 /.vs/
 /x64/
 /Debug/
@@ -50,18 +49,13 @@ __pycache__/
 *.tmp
 *~
 
-# === Optional: Ignore VS Code workspace settings ===
-.vscode/
-
 # === Optional: Ignore test outputs ===
 /tests/output/
 /tests/*.out
 
-# === Optional: Ignore generated MIDI files ===
-*.mid
-*.midi
-
-# === Optional: Ignore generated WAVE files ===
+# === Optional: Ignore generated audio/MIDI files ===
 *.wav
 *.wave
-
+*.mid
+*.midi
+!assets/midi/*.midi
