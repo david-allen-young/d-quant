@@ -1,5 +1,6 @@
 #include "EnvelopeUtils.h"
 #include <algorithm>
+#include <cmath>
 
 constexpr double safe_div_epsilon = 1e-8;
 
@@ -46,4 +47,47 @@ std::vector<double> interpolateEnvelope(const std::vector<Point>& envelope, size
     }
 
     return result;
+}
+
+void analyzeEnvelopes(const std::vector<std::vector<double>>& envelopes, std::vector<double>& outMean, std::vector<double>& outStd)
+{
+    if (envelopes.empty())
+    {
+        return;
+    }
+
+    size_t numSamples = envelopes[0].size();
+    size_t numEnvelopes = envelopes.size();
+
+    outMean.assign(numSamples, 0.0);
+    outStd.assign(numSamples, 0.0);
+
+    // Compute mean
+    for (const auto& env : envelopes)
+    {
+        for (size_t i = 0; i < numSamples; ++i)
+        {
+            outMean[i] += env[i];
+        }
+    }
+
+    for (double& val : outMean)
+    {
+        val /= static_cast<double>(numEnvelopes);
+    }
+
+    // Compute std dev
+    for (const auto& env : envelopes)
+    {
+        for (size_t i = 0; i < numSamples; ++i)
+        {
+            double diff = env[i] - outMean[i];
+            outStd[i] += diff * diff;
+        }
+    }
+
+    for (double& val : outStd)
+    {
+        val = std::sqrt(val / static_cast<double>(numEnvelopes));
+    }
 }
