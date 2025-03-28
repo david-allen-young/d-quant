@@ -91,3 +91,54 @@ void analyzeEnvelopes(const std::vector<std::vector<double>>& envelopes, std::ve
         val = std::sqrt(val / static_cast<double>(numEnvelopes));
     }
 }
+
+std::vector<double> softClipDelta(const std::vector<double>& delta, const std::vector<double>& std, double softness = 3.0)
+{
+    std::vector<double> result(delta.size());
+    for (size_t i = 0; i < delta.size(); ++i)
+    {
+        double denom = std[i] + safe_div_epsilon;
+        result[i] = std[i] * std::tanh((delta[i] / denom) * softness);
+    }
+    return result;
+}
+
+std::vector<double> morphFromTwoInputs(const Morph2Params& p)
+{
+    size_t N = p.mean.size();
+    std::vector<double> result(N);
+    std::vector<double> trend(N);
+    std::vector<double> delta(N);
+    std::vector<double> adaptiveMorph(N);
+
+    double morphFactor = 0.5 * (p.morphFactor1 + p.morphFactor2);
+    double maxStd = *std::max_element(p.std.begin(), p.std.end()) + safe_div_epsilon;
+
+    for (size_t i = 0; i < N; ++i)
+    {
+        trend[i] = 0.5 * (p.input1[i] + p.input2[i]);
+        delta[i] = trend[i] - p.mean[i];
+        adaptiveMorph[i] = morphFactor * (p.std[i] / maxStd);
+    }
+
+    std::vector<double> morphed(N);
+    for (size_t i = 0; i < N; ++i)
+    {
+        morphed[i] = p.mean[i] + adaptiveMorph[i] * delta[i];
+    }
+
+    std::vector<double> softClamped(N);
+    for (size_t i = 0; i < N; ++i)
+    {
+        double d = morphed[i] - p.mean[i];
+        double denom = p.std[i] + safe_div_epsilon;
+        softClamped[i] = p.std[i] * std::tanh((d / denom) * p.softness);
+    }
+
+    for (size_t i = 0; i < N; ++i)
+    {
+        result[i] = std::clamp(p.mean[i] + softClamped[i], 0.0, 1.0);
+    }
+
+    return result;
+}
