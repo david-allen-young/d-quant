@@ -80,3 +80,44 @@ void writeCSV(const std::vector<Point>& envelope, const std::string& filename)
 	}
 	file.close();
 }
+
+#include <sstream>
+#include <string>
+
+bool readCSV(const std::string& filename, std::vector<Point>& outEnvelope)
+{
+    std::ifstream file(filename);
+    if (!file.is_open())
+    {
+        return false;
+    }
+
+    std::string line;
+    std::getline(file, line); // Skip header
+
+    while (std::getline(file, line))
+    {
+        std::istringstream ss(line);
+        std::string timeStr, exprStr;
+
+        if (!std::getline(ss, timeStr, ','))
+        {
+            continue;
+        }
+        if (!std::getline(ss, exprStr, ','))
+        {
+            continue;
+        }
+
+        double time, expr;
+        std::istringstream tss(timeStr);
+        std::istringstream ess(exprStr);
+
+        if ((tss >> time) && (ess >> expr))
+        {
+            outEnvelope.emplace_back(time, expr);
+        }
+    }
+
+    return true;
+}
