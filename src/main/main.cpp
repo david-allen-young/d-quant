@@ -11,7 +11,7 @@ int main()
 
     // Step 2: Generate new envelopes via morph2 and export them
     std::string morphResultsDir = "C:/GitHub/d-quant/assets/morph_csv";
-    int count = 20;
+    int count = 100;
 
     run_morph2_generation_example(midiEnvelopesDir, morphResultsDir, count);
 
