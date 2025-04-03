@@ -1,10 +1,6 @@
 #include "dynamizer.h"
 #include "AnalysisHelpers.h"
-#include "MidiFileReader_v2.h"
-#include "MidiTrackParser.h"
 
-#include <iostream>
-#include <vector>
 
 void run_envelope_csv_example()
 {
@@ -24,6 +20,11 @@ void run_envelope_csv_example()
     std::string file = "assets/output_csv/envelope.csv";
     writeCSV(envelope, file);
 }
+
+#include "MidiFileReader_v2.h"
+#include "MidiTrackParser.h"
+#include <iostream>
+#include <vector>
 
 void run_midi_to_envelope_csv(const std::string& midiFilePath, const std::string& outputDir)
 {
