@@ -208,3 +208,63 @@ void run_breath_cc_generation_example(const std::string& inputDir, const std::st
 
     std::cout << "Wrote test breath CC output to: " << file << std::endl;
 }
+
+#include "NoteBuilder.h"
+//#include <random>
+
+void run_note_builder_example(const std::string& envelopeDir)
+{
+    std::vector<std::vector<Point>> envelopes;
+    for (const auto& entry : std::filesystem::directory_iterator(envelopeDir))
+    {
+        if (entry.path().extension() == ".csv")
+        {
+            std::vector<Point> points;
+            readCSV(entry.path().string(), points);
+            if (!points.empty())
+                envelopes.push_back(points);
+        }
+    }
+
+    if (envelopes.empty())
+    {
+        std::cerr << "No envelopes found in " << envelopeDir << std::endl;
+        return;
+    }
+
+    std::mt19937 rng(std::random_device{}());
+    std::uniform_int_distribution<> indexDist(0, static_cast<int>(envelopes.size() - 1));
+    auto envelope = envelopes[indexDist(rng)];
+
+    // Params
+    double durationInBeats = 4.0;
+    ExpressionMark start = ExpressionMark::pp;
+    ExpressionMark end = ExpressionMark::ff;
+    ExpressionMark minScore = ExpressionMark::pp;
+    ExpressionMark maxScore = ExpressionMark::ff;
+
+    // Convert envelope to breath CC values
+    auto breathCC = generateBreathCCFromEnvelope(envelope, durationInBeats, start, end, minScore, maxScore);
+
+    // Build note with expression
+    NoteBuilderMidi builder;
+    builder.setKeyNumber(60); // Middle C
+    builder.setVelocity(64);  // Neutral MIDI velocity
+    builder.setPosition(0.0); // Start at beat 0
+    builder.setDuration(durationInBeats);
+    //builder.setExpressionMarkRange(minScore, maxScore);
+
+    for (const auto& [pos, cc] : breathCC)
+        builder.addExpression(pos, cc);
+
+    auto note = builder.build();
+
+    // Inspect or hold note for MIDI output
+    std::cout << "Note built: pitch " << note->getKeyNumber()
+              << ", duration " << note->getDurationInBeats()
+              << ", with " << note->getExpression().size()
+              << " expression points." << std::endl;
+
+    // You can store this note or pass it to a future midi writer
+}
+

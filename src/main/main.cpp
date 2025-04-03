@@ -21,5 +21,8 @@ int main()
     std::string breathResultsDir = "C:/GitHub/d-quant/assets/breath_csv";
     run_breath_cc_generation_example(morphResultsDir, breathResultsDir);
 
+	// Step 4: Generate notes from the generated envelopes
+    run_note_builder_example(morphResultsDir);
+
     return 0;
 }
