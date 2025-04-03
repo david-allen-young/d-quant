@@ -16,5 +16,10 @@ int main()
     run_morph2_generation_example(midiEnvelopesDir, morphResultsDir, count);
 
     std::cout << "Morph2 generation complete. Output in: " << morphResultsDir << "\n";
+
+    // Step 3: Apply a generated envelope as MIDI CC
+    std::string breathResultsDir = "C:/GitHub/d-quant/assets/breath_csv";
+    run_breath_cc_generation_example(morphResultsDir, breathResultsDir);
+
     return 0;
 }

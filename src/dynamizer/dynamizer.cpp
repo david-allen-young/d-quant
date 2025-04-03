@@ -67,7 +67,7 @@ void run_morph2_generation_example(const std::string& inputDir,
         if (entry.path().extension() == ".csv")
         {
             std::vector<Point> points;
-            readCSV(entry.path().string(), points); // your existing CSV reader
+            readCSV(entry.path().string(), points);
             if (!points.empty())
             {
                 auto interp = interpolateEnvelope(points, targetLength);
@@ -154,4 +154,57 @@ void run_morph2_generation_example(const std::string& inputDir,
     }
 
     std::cout << "Generated " << count << " envelopes using morph2.\n";
+}
+
+#include "ExpressionGenerator.h"
+
+void run_breath_cc_generation_example(const std::string& inputDir, const std::string& outputDir)
+{
+    //// Example envelope (normalized 0–1 time and value)
+    //std::vector<Point> envelope = {
+    //    {0.0, 0.0},
+    //    {0.2, 0.1},
+    //    {0.4, 0.3},
+    //    {0.6, 0.6},
+    //    {0.8, 0.9},
+    //    {1.0, 1.0}};
+
+    std::vector<std::vector<Point>> morphedEnvelopes;
+    for (const auto& entry : fs::directory_iterator(inputDir))
+    {
+        if (entry.path().extension() == ".csv")
+        {
+            std::vector<Point> points;
+            readCSV(entry.path().string(), points);
+            if (!points.empty())
+            {
+                morphedEnvelopes.push_back(points);
+            }
+        }
+    }
+
+    double durationBeats = 4.0;
+    ExpressionMark start = ExpressionMark::pp;
+    ExpressionMark end = ExpressionMark::ff;
+    ExpressionMark minScore = ExpressionMark::pp;
+    ExpressionMark maxScore = ExpressionMark::ff;
+
+    std::mt19937 rng(std::random_device{}());
+    std::uniform_int_distribution<> indexDist(0, (int)morphedEnvelopes.size() - 1);
+    int rIdx = indexDist(rng);
+
+    auto envelope = morphedEnvelopes[rIdx];
+    auto breathCC = generateBreathCCFromEnvelope(envelope, durationBeats, start, end, minScore, maxScore);
+
+    std::vector<Point> output;
+    for (const auto& [beat, ccVal] : breathCC)
+    {
+        output.push_back({beat, static_cast<double>(ccVal)});
+    }
+
+    //std::string file = "assets/output_csv/breath_cc_example.csv";
+    std::string file = outputDir + "/breath_cc_example.csv";
+    writeCSV(output, file);
+
+    std::cout << "Wrote test breath CC output to: " << file << std::endl;
 }
