@@ -8,8 +8,18 @@
 
 void run_envelope_csv_example()
 {
-    std::vector<Point> envelope = {
-        {0.0, 0.0}, {0.5, 0.10}, {1.0, 0.15}, {1.5, 0.20}, {2.0, 0.25}, {2.5, 0.35}, {3.0, 0.47}, {3.5, 0.63}, {4.0, 0.89}};
+    std::vector<Point> envelope =
+    {
+        {0.0, 0.0},
+        {0.5, 0.10},
+        {1.0, 0.15},
+        {1.5, 0.20},
+        {2.0, 0.25},
+        {2.5, 0.35},
+        {3.0, 0.47},
+        {3.5, 0.63},
+        {4.0, 0.89}
+    };
 
     std::string file = "assets/output_csv/envelope.csv";
     writeCSV(envelope, file);
