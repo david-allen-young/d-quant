@@ -92,7 +92,9 @@ void run_morph2_generation_example(const std::string& inputDir,
             int idx1 = indexDist(rng);
             int idx2 = indexDist(rng);
             if (idx1 == idx2)
+            {
                 continue;
+            }
 
             const auto& e1 = interpolatedEnvelopes[idx1];
             const auto& e2 = interpolatedEnvelopes[idx2];
@@ -104,7 +106,9 @@ void run_morph2_generation_example(const std::string& inputDir,
                 int d1 = (e1[j] - mean[j]) > 0 ? 1 : -1;
                 int d2 = (e2[j] - mean[j]) > 0 ? 1 : -1;
                 if (d1 == d2)
+                {
                     ++agree;
+                }
             }
 
             if ((double)agree / targetLength > 0.8)
