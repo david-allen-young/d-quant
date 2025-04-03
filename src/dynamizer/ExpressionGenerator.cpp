@@ -24,13 +24,18 @@ std::vector<std::pair<double, int>> generateBreathCCFromEnvelope(
     }
 
     // Map each envelope point to a scaled value across the dynamic range
+    int lastCC = -1;
     for (const auto& point : envelope)
     {
         double alpha = point.value; // normalized [0–1] envelope
         double dynamicVal = startVal + alpha * (endVal - startVal);
         double norm = (dynamicVal - minVal) / (maxVal - minVal);
         int ccVal = static_cast<int>(norm * 127.0);
-
+        if (ccVal == lastCC)
+        {
+            continue;
+        }
+        lastCC = ccVal;
         double positionInBeats = point.time * durationInBeats;
         result.emplace_back(positionInBeats, ccVal);
     }
