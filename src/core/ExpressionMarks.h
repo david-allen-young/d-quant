@@ -1,4 +1,5 @@
 #pragma once
+#include <utility>
 
 // Defines standard Western dynamics for use in expression modeling
 enum class ExpressionMark
@@ -15,6 +16,28 @@ enum class ExpressionMark
     fff = 9,
     ffff = 10
 };
+
+enum class DynamicRangePreset
+{
+    pp_to_ff,
+    ppp_to_fff,
+    pppp_to_ffff
+};
+
+inline std::pair<ExpressionMark, ExpressionMark> getRangeForPreset(DynamicRangePreset preset)
+{
+    switch (preset)
+    {
+    case DynamicRangePreset::pp_to_ff:
+        return {ExpressionMark::pp, ExpressionMark::ff};
+    case DynamicRangePreset::ppp_to_fff:
+        return {ExpressionMark::ppp, ExpressionMark::fff};
+    case DynamicRangePreset::pppp_to_ffff:
+        return {ExpressionMark::pppp, ExpressionMark::ffff};
+    default:
+        return {ExpressionMark::niente, ExpressionMark::ffff};
+    }
+}
 
 // Convert a symbolic expression mark to a MIDI controller index (0–127),
 // assuming the expression marks span a min to max range.

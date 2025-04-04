@@ -1,6 +1,6 @@
 #include "NoteBuilder.h"
-#include "ExpressionMarks.h"
 #include <algorithm>
+
 
 //enum ExpressionMarksXml
 //{
@@ -17,13 +17,16 @@
 //	ffff = 10
 //};
 
-NoteBuilderXml::NoteBuilderXml()
+NoteBuilderXml::NoteBuilderXml(DynamicRangePreset dynamicRangePreset)
 {
-	// TODO: Extend builder to establish dynamic limits (pppp/ffff vs ppp/fff vs pp/ff)
-	int niente = static_cast<int>(ExpressionMark::niente);
-	int ffff = static_cast<int>(ExpressionMark::ffff);
-	velocityRange = { niente, ffff };
-	expressionRange = { niente, ffff };
+	//int niente = static_cast<int>(ExpressionMark::niente);
+	//int ffff = static_cast<int>(ExpressionMark::ffff);
+	//velocityRange = { niente, ffff };
+	//expressionRange = { niente, ffff };
+    auto range = getRangeForPreset(dynamicRangePreset);
+	auto rangeInt = std::make_pair(static_cast<int>(range.first), static_cast<int>(range.second));
+    velocityRange = rangeInt;
+    expressionRange = rangeInt;
 	intonationRange = { 0, 0 };
 }
 
@@ -34,11 +37,8 @@ void NoteBuilderXml::addIntonation([[MaybeUnused]] double position, [[MaybeUnuse
 
 NoteBuilderMidi::NoteBuilderMidi()
 {
-    // TODO: Extend builder to establish dynamic limits (pppp/ffff vs ppp/fff vs pp/ff)
-    int niente = expressionMarkToCC(ExpressionMark::niente, ExpressionMark::niente, ExpressionMark::ffff);
-	int ffff = expressionMarkToCC(ExpressionMark::ffff, ExpressionMark::ffff, ExpressionMark::ffff);
-	velocityRange = { niente, ffff };
-	expressionRange = { niente, ffff };
+	velocityRange = { 0, 127 };
+	expressionRange = { 0, 127 };
 	intonationRange = { -8192, 8191 };
 }
 
