@@ -1,7 +1,5 @@
 add_library(dynamizer
     dynamizer.cpp
-	EnvelopeUtils.cpp
-	ExpressionGenerator.cpp
 )
 
 target_include_directories(dynamizer PUBLIC ${CMAKE_CURRENT_SOURCE_DIR})
