@@ -210,9 +210,10 @@ void run_breath_cc_generation_example(const std::string& inputDir, const std::st
 }
 
 #include "NoteBuilder.h"
+#include "MidiFileWriter.h"
 //#include <random>
 
-void run_note_builder_example(const std::string& envelopeDir)
+void run_note_builder_example(const std::string& envelopeDir, const std::string& outputDir)
 {
     std::vector<std::vector<Point>> envelopes;
     for (const auto& entry : std::filesystem::directory_iterator(envelopeDir))
@@ -266,5 +267,10 @@ void run_note_builder_example(const std::string& envelopeDir)
               << " expression points." << std::endl;
 
     // You can store this note or pass it to a future midi writer
+    MidiFileWriter writer;
+    int ticksPerQuarterNote = 480;
+    std::string filename = outputDir + "/expressive_note.mid";
+    writer.writeSingleNoteFile(*note, filename, ticksPerQuarterNote);
+    std::cout << "Saved generated note to file: " << filename << std::endl;
 }
 
