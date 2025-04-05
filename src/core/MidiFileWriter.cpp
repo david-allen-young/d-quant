@@ -11,12 +11,7 @@ void MidiFileWriter::writeSingleNoteFile(const NoteInterface& note,
     std::vector<uint8_t> trackData;
     uint32_t lastTick = 0;
 
-    //// Convert beats to ticks
-    //auto beatsToTicks = [ticksPerQuarterNote](double beats) -> uint32_t
-    //{
-    //    return static_cast<uint32_t>(beats * ticksPerQuarterNote);
-    //};
-
+    // Convert beats to ticks
     auto beatsToTicks = [ticksPerQuarterNote](double beats) -> uint32_t
     {
         //return static_cast<uint32_t>(std::round(beats * ticksPerQuarterNote));
@@ -27,21 +22,18 @@ void MidiFileWriter::writeSingleNoteFile(const NoteInterface& note,
         // === [1] Meta Marker at tick 0 ===
     const double noteOnBeat = note.getPositionInBeats() + 1.0;
     {
-        writeVariableLengthQuantity(trackData, 0); // delta-time from start
-        //uint32_t markerTick = beatsToTicks(noteOnBeat - 1.0);
-        ////writeVariableLengthQuantity(trackData, markerTick - lastTick);
-        //uint32_t delta = (markerTick >= lastTick)
-        //                     ? (markerTick - lastTick)
-        //                     : 0; // clamp negative to 0 — safest fallback
-        //writeVariableLengthQuantity(trackData, delta);
+        uint32_t markerTick = beatsToTicks(noteOnBeat - 1.0);
+        uint32_t delta = (markerTick >= lastTick)
+                             ? (markerTick - lastTick)
+                             : 0; // clamp negative to 0 — safest fallback
+        writeVariableLengthQuantity(trackData, delta);
 
         trackData.push_back(0xFF);                 // Meta event
         trackData.push_back(0x06);                 // Marker type
         std::string label = "DQUANT_PREROLL";
         trackData.push_back(static_cast<uint8_t>(label.size()));
         trackData.insert(trackData.end(), label.begin(), label.end());
-        lastTick = 0;
-        //lastTick = markerTick;
+        lastTick = markerTick;
     }
 
     //// Note On
