@@ -1,4 +1,5 @@
 #include "CliParser.h"
+#include "JsonConfigLoader.h"
 #include <iostream>
 #include <stdexcept>
 
@@ -6,6 +7,21 @@ MidiArgs parse_args(int argc, char* argv[])
 {
     MidiArgs args;
 
+    // STEP 1: Handle --config if present
+    for (int i = 1; i < argc; ++i)
+    {
+        std::string key = argv[i];
+        if (key == "--config" && i + 1 < argc)
+        {
+            std::string path = argv[++i];
+            if (!load_args_from_json(path, args))
+            {
+                throw std::runtime_error("Failed to load config file: " + path);
+            }
+        }
+    }
+
+    // STEP 2: Override with direct CLI args
     for (int i = 1; i < argc; ++i)
     {
         std::string key = argv[i];
@@ -25,6 +41,10 @@ MidiArgs parse_args(int argc, char* argv[])
             args.controller_cc = std::stoi(argv[++i]);
         else if (key == "--out" && i + 1 < argc)
             args.output_file = argv[++i];
+        else if (key == "--config")
+        {
+            ++i; // already handled
+        }
         else
         {
             std::cerr << "Unknown or malformed argument: " << key << "\n";
