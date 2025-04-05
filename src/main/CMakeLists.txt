@@ -2,6 +2,7 @@ add_executable(dquant_cli
     main.cpp
     CliParser.cpp
 	SingleNoteGenerator.cpp
+	JsonConfigLoader.cpp
 )
 
 target_include_directories(dquant_cli PRIVATE ${PROJECT_SOURCE_DIR}/external/json)
