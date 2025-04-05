@@ -14,12 +14,10 @@ void MidiFileWriter::writeSingleNoteFile(const NoteInterface& note,
     // Convert beats to ticks
     auto beatsToTicks = [ticksPerQuarterNote](double beats) -> uint32_t
     {
-        //return static_cast<uint32_t>(std::round(beats * ticksPerQuarterNote));
         return static_cast<uint32_t>(std::max(0.0, std::round(beats * ticksPerQuarterNote)));
     };
 
-
-        // === [1] Meta Marker at tick 0 ===
+    // === [1] Meta Marker at tick 0 ===
     const double noteOnBeat = note.getPositionInBeats() + 1.0;
     {
         uint32_t markerTick = beatsToTicks(noteOnBeat - 1.0);
@@ -36,39 +34,7 @@ void MidiFileWriter::writeSingleNoteFile(const NoteInterface& note,
         lastTick = markerTick;
     }
 
-    //// Note On
-    //{
-    //    uint32_t tick = beatsToTicks(note.getPositionInBeats());
-    //    writeVariableLengthQuantity(trackData, tick - lastTick);
-    //    trackData.push_back(0x90); // Note On, channel 0
-    //    trackData.push_back(static_cast<uint8_t>(note.getKeyNumber()));
-    //    trackData.push_back(static_cast<uint8_t>(note.getVelocity()));
-    //    lastTick = tick;
-    //}
-
-    //// Expression (Breath Controller - CC #2)
-    //for (const auto& [beat, ccValueNorm] : note.getExpression())
-    //{
-    //    uint32_t tick = beatsToTicks(beat);
-    //    writeVariableLengthQuantity(trackData, tick - lastTick);
-    //    trackData.push_back(0xB0); // CC message, channel 0
-    //    trackData.push_back(2);    // CC #2 Breath Controller
-    //    trackData.push_back(static_cast<uint8_t>(ccValueNorm * 127.0));
-    //    lastTick = tick;
-    //}
-
-    //// Note Off
-    //{
-    //    uint32_t tick = beatsToTicks(note.getPositionInBeats() + note.getDurationInBeats());
-    //    writeVariableLengthQuantity(trackData, tick - lastTick);
-    //    trackData.push_back(0x80); // Note Off, channel 0
-    //    trackData.push_back(static_cast<uint8_t>(note.getKeyNumber()));
-    //    trackData.push_back(0); // velocity 0
-    //    lastTick = tick;
-    //}
-
-        // === [2] Expression Preroll Handling ===
-
+    // === [2] Expression Preroll Handling ===
     // We'll shift expression points earlier so that the *last* preroll CC lands at beat 1.0
     const auto& expression = note.getExpression();
     size_t prerollCCCount = std::min<size_t>(2, expression.size());
@@ -80,30 +46,6 @@ void MidiFileWriter::writeSingleNoteFile(const NoteInterface& note,
     }
 
     const double noteStart = noteOnBeat;
-    
-
-    //// === [3] Shifted Expression (CC2)
-    //for (const auto& [beat, ccValueNorm] : expression)
-    //{
-    //    //double shiftedBeat = beat + (noteStart - prerollBeats);
-    //    double shiftedBeat = std::max(0.0, beat + (noteStart - prerollBeats));
-    //    uint32_t tick = beatsToTicks(shiftedBeat);
-    //    writeVariableLengthQuantity(trackData, tick - lastTick);
-    //    trackData.push_back(0xB0); // Control Change, channel 0
-    //    trackData.push_back(2);    // CC2: Breath Controller
-    //    trackData.push_back(static_cast<uint8_t>(ccValueNorm * 127.0));
-    //    lastTick = tick;
-    //}
-
-    //// === [4] Note On
-    //{
-    //    uint32_t tick = beatsToTicks(noteStart);
-    //    writeVariableLengthQuantity(trackData, tick - lastTick);
-    //    trackData.push_back(0x90); // Note On, channel 0
-    //    trackData.push_back(static_cast<uint8_t>(note.getKeyNumber()));
-    //    trackData.push_back(static_cast<uint8_t>(note.getVelocity()));
-    //    lastTick = tick;
-    //}
 
     // === [3] Shifted Expression (CC2) - PRE-NOTE
     for (const auto& [beat, ccValueNorm] : expression)
@@ -149,9 +91,8 @@ void MidiFileWriter::writeSingleNoteFile(const NoteInterface& note,
 
     double noteEnd = noteStart + note.getDurationInBeats();
 
-    // === [5] Note Off
+    // === [6] Note Off
     {
-        //uint32_t tick = beatsToTicks(noteEnd);
         uint32_t tick = lastTick;
         writeVariableLengthQuantity(trackData, tick - lastTick);
         trackData.push_back(0x80); // Note Off
@@ -192,21 +133,6 @@ void MidiFileWriter::writeSingleNoteFile(const NoteInterface& note,
 
 void MidiFileWriter::writeVariableLengthQuantity(std::vector<uint8_t>& buffer, uint32_t value)
 {
-    //uint8_t bytes[4];
-    //int count = 0;
-    //do
-    //{
-    //    bytes[count++] = value & 0x7F;
-    //    value >>= 7;
-    //} while (value > 0);
-
-    //for (int i = count - 1; i >= 0; --i)
-    //{
-    //    uint8_t byte = bytes[i];
-    //    if (i != 0)
-    //        byte |= 0x80;
-    //    buffer.push_back(byte);
-    //}
     uint8_t bytes[5]; // Defensive: MIDI VLQ never uses more than 4 bytes, but room for safety
     int count = 0;
     do
