@@ -238,7 +238,7 @@ void run_note_builder_example(const std::string& envelopeDir, const std::string&
     auto envelope = envelopes[indexDist(rng)];
 
     // Params
-    double durationInBeats = 4.0;
+    double durationInBeats = 3.94;
     ExpressionMark start = ExpressionMark::pp;
     ExpressionMark end = ExpressionMark::ff;
     ExpressionMark minScore = ExpressionMark::pp;
