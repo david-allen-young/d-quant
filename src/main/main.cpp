@@ -34,6 +34,11 @@
 
 int main(int argc, char* argv[])
 {
+    std::cout << "ARGC: " << argc << "\n";
+    for (int i = 0; i < argc; ++i)
+    {
+        std::cout << "argv[" << i << "]: " << argv[i] << "\n";
+    }
     try
     {
         // Parse command-line arguments
