@@ -1,18 +1,20 @@
 #include "ExpressionGenerator.h"
+using std::vector;
+using std::pair;
 
 namespace dynamizer
 {
 //-------------------------------------------------------------------------------------------
 
-std::vector<std::pair<double, int>> generateBreathCCFromEnvelope(
-    const std::vector<Point>& envelope,
+vector<pair<double, int>> generateBreathCCFromEnvelope(
+    const vector<Point>& envelope,
     double durationInBeats,
     ExpressionMark startDynamic,
     ExpressionMark endDynamic,
     ExpressionMark minDynamicInScore,
     ExpressionMark maxDynamicInScore)
 {
-    std::vector<std::pair<double, int>> result;
+    vector<pair<double, int>> result;
 
     int minVal = static_cast<int>(minDynamicInScore);
     int maxVal = static_cast<int>(maxDynamicInScore);
