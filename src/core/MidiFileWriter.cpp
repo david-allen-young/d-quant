@@ -6,7 +6,8 @@
 
 void MidiFileWriter::writeSingleNoteFile(const NoteInterface& note,
                                          const std::string& outPath,
-                                         int ticksPerQuarterNote)
+                                         int ticksPerQuarterNote,
+                                         MidiController controllerCC)
 {
     std::vector<uint8_t> trackData;
     uint32_t lastTick = 0;
@@ -47,6 +48,14 @@ void MidiFileWriter::writeSingleNoteFile(const NoteInterface& note,
 
     const double noteStart = noteOnBeat;
 
+    auto emitCC = [&](uint32_t tick, int value)
+    {
+        writeVariableLengthQuantity(trackData, tick - lastTick);
+        trackData.push_back(0xB0); // Control Change, channel 0
+        trackData.push_back(static_cast<uint8_t>(static_cast<int>(controllerCC)));
+        trackData.push_back(static_cast<uint8_t>(value));
+    };
+
     // === [3] Shifted Expression (CC2) - PRE-NOTE
     for (const auto& [beat, ccValueNorm] : expression)
     {
@@ -56,10 +65,7 @@ void MidiFileWriter::writeSingleNoteFile(const NoteInterface& note,
         if (tick >= beatsToTicks(noteStart))
             continue; // skip post-note CC2s for now
 
-        writeVariableLengthQuantity(trackData, tick - lastTick);
-        trackData.push_back(0xB0); // Control Change, channel 0
-        trackData.push_back(2);    // CC2: Breath Controller
-        trackData.push_back(static_cast<uint8_t>(ccValueNorm * 127.0));
+        emitCC(tick, static_cast<int>(ccValueNorm * 127.0));
         lastTick = tick;
     }
 
@@ -82,10 +88,7 @@ void MidiFileWriter::writeSingleNoteFile(const NoteInterface& note,
         if (tick < beatsToTicks(noteStart))
             continue; // already written
 
-        writeVariableLengthQuantity(trackData, tick - lastTick);
-        trackData.push_back(0xB0); // Control Change, channel 0
-        trackData.push_back(2);    // CC2: Breath Controller
-        trackData.push_back(static_cast<uint8_t>(ccValueNorm * 127.0));
+        emitCC(tick, static_cast<int>(ccValueNorm * 127.0));
         lastTick = tick;
     }
 
