@@ -28,34 +28,6 @@
 //    return 0;
 //}
 
-//#include "CliParser.h"
-//#include "SingleNoteGenerator.h"
-//#include <iostream>
-//
-//int main(int argc, char* argv[])
-//{
-//    std::cout << "ARGC: " << argc << "\n";
-//    for (int i = 0; i < argc; ++i)
-//    {
-//        std::cout << "argv[" << i << "]: " << argv[i] << "\n";
-//    }
-//    try
-//    {
-//        // Parse command-line arguments
-//        MidiArgs args = parse_args(argc, argv);
-//
-//        // Call the function to generate the single note MIDI file
-//        generate_single_note_midi(args);
-//    }
-//    catch (const std::exception& e)
-//    {
-//        std::cerr << "Error: " << e.what() << std::endl;
-//        return 1; // Return error code
-//    }
-//
-//    return 0; // Success
-//}
-
 #include "CliParser.h"
 #include "SingleNoteGenerator.h"
 #include "JsonConfigLoader.h"
