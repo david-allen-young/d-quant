@@ -83,10 +83,6 @@ inline ExpressionMark markFromStr(const std::string& mark)
 
 inline DynamicRangePreset presetFromStr(const std::string& preset)
 {
-    if (preset == "pp_to_ff")
-    {
-        return DynamicRangePreset::pp_to_ff;
-    }
     if (preset == "ppp_to_fff")
     {
         return DynamicRangePreset::ppp_to_fff;
@@ -95,4 +91,5 @@ inline DynamicRangePreset presetFromStr(const std::string& preset)
     {
         return DynamicRangePreset::pppp_to_ffff;
     }
+    return DynamicRangePreset::pp_to_ff;
 }
