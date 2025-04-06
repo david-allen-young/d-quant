@@ -38,7 +38,23 @@ MidiArgs parse_args(int argc, char* argv[])
         else if (key == "--dyn_preset" && i + 1 < argc)
             args.dyn_preset = argv[++i];
         else if (key == "--cc" && i + 1 < argc)
-            args.controller_cc = std::stoi(argv[++i]);
+        {
+            int cc = std::stoi(argv[++i]);
+            switch (cc)
+            {
+            case 1:
+                args.controller_cc = MidiController::Modulation;
+                break;
+            case 2:
+                args.controller_cc = MidiController::Breath;
+                break;
+            case 11:
+                args.controller_cc = MidiController::Expression;
+                break;
+            default:
+                throw std::runtime_error("Invalid controller CC. Must be 1, 2, or 11.");
+            }
+        }
         else if (key == "--out" && i + 1 < argc)
             args.output_file = argv[++i];
         else if (key == "--config")
