@@ -53,3 +53,46 @@ inline int expressionMarkToCC(ExpressionMark mark, ExpressionMark min, Expressio
     double norm = static_cast<double>(val - minVal) / (maxVal - minVal);
     return static_cast<int>(norm * 127.0);
 }
+
+#include <string>
+// Map dynamic string (e.g., "pp") to ExpressionMark
+inline ExpressionMark markFromStr(const std::string& mark)
+{
+    if (mark == "pppp")
+        return ExpressionMark::pppp;
+    if (mark == "ppp")
+        return ExpressionMark::ppp;
+    if (mark == "pp")
+        return ExpressionMark::pp;
+    if (mark == "p")
+        return ExpressionMark::p;
+    if (mark == "mp")
+        return ExpressionMark::mp;
+    if (mark == "mf")
+        return ExpressionMark::mf;
+    if (mark == "f")
+        return ExpressionMark::f;
+    if (mark == "ff")
+        return ExpressionMark::ff;
+	if (mark == "fff")
+		return ExpressionMark::fff;
+	if (mark == "ffff")
+		return ExpressionMark::ffff;
+    return ExpressionMark::niente;
+};
+
+inline DynamicRangePreset presetFromStr(const std::string& preset)
+{
+    if (preset == "pp_to_ff")
+    {
+        return DynamicRangePreset::pp_to_ff;
+    }
+    if (preset == "ppp_to_fff")
+    {
+        return DynamicRangePreset::ppp_to_fff;
+    }
+    if (preset == "pppp_to_ffff")
+    {
+        return DynamicRangePreset::pppp_to_ffff;
+    }
+}
