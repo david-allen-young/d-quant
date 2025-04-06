@@ -1,30 +1,10 @@
-#pragma once
-#include <utility>
+#include "ExpressionMarks.h"
 
-// Defines standard Western dynamics for use in expression modeling
-enum class ExpressionMark
+namespace dynamizer
 {
-    niente = 0,
-    pppp = 1,
-    ppp = 2,
-    pp = 3,
-    p = 4,
-    mp = 5,
-    mf = 6,
-    f = 7,
-    ff = 8,
-    fff = 9,
-    ffff = 10
-};
+//-------------------------------------------------------------------------------------------
 
-enum class DynamicRangePreset
-{
-    pp_to_ff,
-    ppp_to_fff,
-    pppp_to_ffff
-};
-
-inline std::pair<ExpressionMark, ExpressionMark> getRangeForPreset(DynamicRangePreset preset)
+std::pair<ExpressionMark, ExpressionMark> getRangeForPreset(DynamicRangePreset preset)
 {
     switch (preset)
     {
@@ -41,7 +21,7 @@ inline std::pair<ExpressionMark, ExpressionMark> getRangeForPreset(DynamicRangeP
 
 // Convert a symbolic expression mark to a MIDI controller index (0–127),
 // assuming the expression marks span a min to max range.
-inline int expressionMarkToCC(ExpressionMark mark, ExpressionMark min, ExpressionMark max)
+int expressionMarkToCC(ExpressionMark mark, ExpressionMark min, ExpressionMark max)
 {
     int minVal = static_cast<int>(min);
     int maxVal = static_cast<int>(max);
@@ -54,9 +34,8 @@ inline int expressionMarkToCC(ExpressionMark mark, ExpressionMark min, Expressio
     return static_cast<int>(norm * 127.0);
 }
 
-#include <string>
 // Map dynamic string (e.g., "pp") to ExpressionMark
-inline ExpressionMark markFromStr(const std::string& mark)
+ExpressionMark markFromStr(const std::string& mark)
 {
     if (mark == "pppp")
         return ExpressionMark::pppp;
@@ -74,19 +53,15 @@ inline ExpressionMark markFromStr(const std::string& mark)
         return ExpressionMark::f;
     if (mark == "ff")
         return ExpressionMark::ff;
-	if (mark == "fff")
-		return ExpressionMark::fff;
-	if (mark == "ffff")
-		return ExpressionMark::ffff;
+    if (mark == "fff")
+        return ExpressionMark::fff;
+    if (mark == "ffff")
+        return ExpressionMark::ffff;
     return ExpressionMark::niente;
 };
 
-inline DynamicRangePreset presetFromStr(const std::string& preset)
+DynamicRangePreset presetFromStr(const std::string& preset)
 {
-    if (preset == "pp_to_ff")
-    {
-        return DynamicRangePreset::pp_to_ff;
-    }
     if (preset == "ppp_to_fff")
     {
         return DynamicRangePreset::ppp_to_fff;
@@ -95,4 +70,8 @@ inline DynamicRangePreset presetFromStr(const std::string& preset)
     {
         return DynamicRangePreset::pppp_to_ffff;
     }
+    return DynamicRangePreset::pp_to_ff;
 }
+
+//-------------------------------------------------------------------------------------------
+} // namespace dynamizer

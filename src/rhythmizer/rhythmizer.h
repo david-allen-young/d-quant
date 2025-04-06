@@ -1,3 +1,10 @@
-// rhythmizer.h
 #pragma once
-int rhythmizer_dummy();
+#include "NoteBuilder.h"
+
+namespace rhythmizer {
+//-------------------------------------------------------------------------------------------
+
+void applyTiming(NoteBuilderMidi& builder, double nominalPosition, double nominalDuration);
+
+//-------------------------------------------------------------------------------------------
+}//namespace rhythmizer
