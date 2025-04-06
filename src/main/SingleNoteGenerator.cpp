@@ -21,6 +21,8 @@
 
 #include "SingleNoteGenerator.h"
 #include "ExpressionGenerator.h" // for generateBreathCCFromEnvelope
+#include "rhythmizer.h"
+//#include "intonizer.h"
 #include "MidiArgs.h"
 #include "MidiFileWriter.h"
 #include "NoteBuilder.h"
@@ -35,17 +37,22 @@ using dynamizer::getRangeForPreset;
 using dynamizer::presetFromStr;
 using dynamizer::generateBreathCCFromEnvelope;
 
+//using rhythmizer::applyTiming;
+
 void generate_single_note_midi(const MidiArgs& args)
 {
     // === [1] Create the base NoteBuilder ===
     NoteBuilderMidi builder;
     builder.setKeyNumber(args.note_number);
-    builder.setVelocity(64); // neutral, or map from args later
-    builder.setPosition(args.position_beats);
-    builder.setDuration(args.duration_beats);
+    //builder.setVelocity(64); // neutral, or map from args later
+    //builder.setPosition(args.position_beats);
+    //builder.setDuration(args.duration_beats);
 
     // === [2] Rhythmizer stub (future): just passthrough for now ===
     // Eventually: rhythmizer::process(builder); -> tweak position/duration
+    double nominalPosition = args.position_beats;
+    double nominalDuration = args.duration_beats;
+    rhythmizer::applyTiming(builder, nominalPosition, nominalDuration);
 
     // === [3] Dynamizer: Generate envelope -> CC ===
     std::vector<std::string> envelopePaths;
@@ -92,7 +99,15 @@ void generate_single_note_midi(const MidiArgs& args)
     for (const auto& [pos, cc] : breathCC)
         builder.addExpression(pos, cc);
 
+    size_t velocityIdx = std::min(2ULL, std::max(0ULL, breathCC.size() - 1));
+    if (breathCC.empty())
+    {
+        throw std::runtime_error("Expression envelope empty");
+    }
+    builder.setVelocity(breathCC[velocityIdx].second);
+
     // === [4] Intonizer stub ===
+    // intonizer::applyIntonation(builder);
     // builder.addIntonation(...); <- Not yet implemented
 
     // === [5] Finalize note and write to MIDI ===
