@@ -1,8 +1,7 @@
 add_library(core
     midi_parser.cpp
-	AnalysisHelpers.cpp
+    # Add other core source/header files here
 	MidiFileReader_v2.cpp
-	MidiFileWriter.cpp
     MidiTrackParser.cpp
     NoteBuilder.cpp
 )

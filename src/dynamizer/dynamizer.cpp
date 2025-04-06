@@ -145,7 +145,7 @@ void run_morph2_generation_example(const std::string& inputDir,
         std::vector<Point> csvPoints(targetLength);
         for (size_t j = 0; j < targetLength; ++j)
         {
-            csvPoints[j].time = static_cast<double>(j) / (targetLength - 1); // normalized 0–1
+            csvPoints[j].time = static_cast<double>(j) / (targetLength - 1); // normalized 0?1
             csvPoints[j].value = generated[j];
         }
 
@@ -160,7 +160,7 @@ void run_morph2_generation_example(const std::string& inputDir,
 
 void run_breath_cc_generation_example(const std::string& inputDir, const std::string& outputDir)
 {
-    //// Example envelope (normalized 0–1 time and value)
+    //// Example envelope (normalized 0?1 time and value)
     //std::vector<Point> envelope = {
     //    {0.0, 0.0},
     //    {0.2, 0.1},
@@ -273,4 +273,3 @@ void run_note_builder_example(const std::string& envelopeDir, const std::string&
     writer.writeSingleNoteFile(*note, filename, ticksPerQuarterNote);
     std::cout << "Saved generated note to file: " << filename << std::endl;
 }
-

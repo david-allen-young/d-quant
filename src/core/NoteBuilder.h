@@ -1,6 +1,5 @@
 #pragma once
 #include "Note.h"
-#include "ExpressionMarks.h"
 #include <memory>
 
 class NoteBuilderInterface
@@ -44,7 +43,7 @@ protected:
 class NoteBuilderXml : public NoteBuilder
 {
 public:
-    NoteBuilderXml(DynamicRangePreset dynamicRangePreset);
+	NoteBuilderXml();
 	~NoteBuilderXml() = default;
 	void addIntonation(double position, int intonation) override;
 };
@@ -52,7 +51,7 @@ public:
 class NoteBuilderMidi : public NoteBuilder
 {
 public:
-    NoteBuilderMidi();
+	NoteBuilderMidi();
 	~NoteBuilderMidi() = default;
 	void addIntonation(double position, int intonation) override;
 };
