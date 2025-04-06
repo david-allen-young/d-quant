@@ -1,4 +1,5 @@
 #include "JsonConfigLoader.h"
+#include "ControllerParser.h"
 #include <fstream>
 #include <json.hpp>
 
@@ -26,7 +27,20 @@ bool load_args_from_json(const std::string& path, MidiArgs& out_args)
     if (j.contains("dyn_preset"))
         out_args.dyn_preset = j["dyn_preset"];
     if (j.contains("controller_cc"))
-        out_args.controller_cc = j["controller_cc"];
+    {
+        if (j["controller_cc"].is_string())
+        {
+            out_args.controller_cc = parseController(j["controller_cc"].get<std::string>());
+        }
+        else if (j["controller_cc"].is_number_integer())
+        {
+            out_args.controller_cc = parseController(std::to_string(j["controller_cc"].get<int>()));
+        }
+        else
+        {
+            throw std::runtime_error("controller_cc must be a number or a string");
+        }
+    }
     if (j.contains("output_file"))
         out_args.output_file = j["output_file"];
 
