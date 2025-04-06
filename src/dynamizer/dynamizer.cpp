@@ -194,7 +194,7 @@ void run_breath_cc_generation_example(const std::string& inputDir, const std::st
     int rIdx = indexDist(rng);
 
     auto envelope = morphedEnvelopes[rIdx];
-    auto breathCC = generateBreathCCFromEnvelope(envelope, durationBeats, start, end, minScore, maxScore);
+    auto breathCC = dynamizer::generateBreathCCFromEnvelope(envelope, durationBeats, start, end, minScore, maxScore);
 
     std::vector<Point> output;
     for (const auto& [beat, ccVal] : breathCC)
@@ -245,7 +245,7 @@ void run_note_builder_example(const std::string& envelopeDir, const std::string&
     ExpressionMark maxScore = ExpressionMark::ff;
 
     // Convert envelope to breath CC values
-    auto breathCC = generateBreathCCFromEnvelope(envelope, durationInBeats, start, end, minScore, maxScore);
+    auto breathCC = dynamizer::generateBreathCCFromEnvelope(envelope, durationInBeats, start, end, minScore, maxScore);
 
     // Build note with expression
     NoteBuilderMidi builder;

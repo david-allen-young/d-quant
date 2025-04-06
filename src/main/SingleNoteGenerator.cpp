@@ -76,7 +76,7 @@ void generate_single_note_midi(const MidiArgs& args)
     // After selecting random envelope:
     std::cout << "Using envelope: " << envelopePaths[rIdx] << std::endl;
 
-    auto breathCC = generateBreathCCFromEnvelope(envelope,
+    auto breathCC = dynamizer::generateBreathCCFromEnvelope(envelope,
                                                  args.duration_beats,
                                                  dynStart,
                                                  dynEnd,
