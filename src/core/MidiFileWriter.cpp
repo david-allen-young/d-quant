@@ -18,7 +18,7 @@ void MidiFileWriter::writeSingleNoteFile(const NoteInterface& note,
     };
 
     // === [1] Meta Marker at tick 0 ===
-    const double noteOnBeat = note.getPositionInBeats() + 1.0;
+    const double noteOnBeat = note.getPositionInBeats()/* + 1.0*/;
     {
         uint32_t markerTick = beatsToTicks(noteOnBeat - 1.0);
         uint32_t delta = (markerTick >= lastTick)
