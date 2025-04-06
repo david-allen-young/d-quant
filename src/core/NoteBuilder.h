@@ -1,6 +1,6 @@
 #pragma once
 #include "Note.h"
-#include "ExpressionMarks.h"
+#include "../../src/dynamizer/ExpressionMarks.h"
 #include <memory>
 
 class NoteBuilderInterface
@@ -40,6 +40,8 @@ protected:
 	std::pair<int, int> expressionRange;
 	std::pair<int, int> intonationRange;
 };
+
+using dynamizer::DynamicRangePreset;
 
 class NoteBuilderXml : public NoteBuilder
 {
