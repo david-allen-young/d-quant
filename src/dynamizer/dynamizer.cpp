@@ -157,6 +157,7 @@ void run_morph2_generation_example(const std::string& inputDir,
 }
 
 #include "ExpressionGenerator.h"
+using dynamizer::ExpressionMark;
 
 void run_breath_cc_generation_example(const std::string& inputDir, const std::string& outputDir)
 {
