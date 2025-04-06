@@ -29,6 +29,12 @@
 #include <random>
 #include <iostream>
 
+using dynamizer::ExpressionMark;
+using dynamizer::markFromStr;
+using dynamizer::getRangeForPreset;
+using dynamizer::presetFromStr;
+using dynamizer::generateBreathCCFromEnvelope;
+
 void generate_single_note_midi(const MidiArgs& args)
 {
     // === [1] Create the base NoteBuilder ===
@@ -76,7 +82,7 @@ void generate_single_note_midi(const MidiArgs& args)
     // After selecting random envelope:
     std::cout << "Using envelope: " << envelopePaths[rIdx] << std::endl;
 
-    auto breathCC = dynamizer::generateBreathCCFromEnvelope(envelope,
+    auto breathCC = generateBreathCCFromEnvelope(envelope,
                                                  args.duration_beats,
                                                  dynStart,
                                                  dynEnd,
