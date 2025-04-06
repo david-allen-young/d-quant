@@ -4,7 +4,7 @@ namespace dynamizer
 {
 //-------------------------------------------------------------------------------------------
 
-pair<ExpressionMark, ExpressionMark> getRangeForPreset(DynamicRangePreset preset)
+std::pair<ExpressionMark, ExpressionMark> getRangeForPreset(DynamicRangePreset preset)
 {
     switch (preset)
     {
@@ -35,7 +35,7 @@ int expressionMarkToCC(ExpressionMark mark, ExpressionMark min, ExpressionMark m
 }
 
 // Map dynamic string (e.g., "pp") to ExpressionMark
-ExpressionMark markFromStr(const string& mark)
+ExpressionMark markFromStr(const std::string& mark)
 {
     if (mark == "pppp")
         return ExpressionMark::pppp;
@@ -60,7 +60,7 @@ ExpressionMark markFromStr(const string& mark)
     return ExpressionMark::niente;
 };
 
-DynamicRangePreset presetFromStr(const string& preset)
+DynamicRangePreset presetFromStr(const std::string& preset)
 {
     if (preset == "ppp_to_fff")
     {

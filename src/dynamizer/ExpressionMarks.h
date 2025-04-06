@@ -1,8 +1,6 @@
 #pragma once
 #include <utility>
 #include <string>
-using std::pair;
-using std::string;
 
 namespace dynamizer
 {
@@ -30,10 +28,10 @@ enum class DynamicRangePreset
     pppp_to_ffff
 };
 
-pair<ExpressionMark, ExpressionMark> getRangeForPreset(DynamicRangePreset preset);
+std::pair<ExpressionMark, ExpressionMark> getRangeForPreset(DynamicRangePreset preset);
 int expressionMarkToCC(ExpressionMark mark, ExpressionMark min, ExpressionMark max);
-ExpressionMark markFromStr(const string& mark);
-DynamicRangePreset presetFromStr(const string& preset);
+ExpressionMark markFromStr(const std::string& mark);
+DynamicRangePreset presetFromStr(const std::string& preset);
 
 //-------------------------------------------------------------------------------------------
 } // namespace dynamizer
