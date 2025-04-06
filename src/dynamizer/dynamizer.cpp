@@ -270,7 +270,7 @@ void run_note_builder_example(const std::string& envelopeDir, const std::string&
     MidiFileWriter writer;
     int ticksPerQuarterNote = 480;
     std::string filename = outputDir + "/expressive_note.mid";
-    writer.writeSingleNoteFile(*note, filename, ticksPerQuarterNote);
+    writer.writeSingleNoteFile(*note, filename, ticksPerQuarterNote, MidiController::Breath);
     std::cout << "Saved generated note to file: " << filename << std::endl;
 }
 
