@@ -93,5 +93,5 @@ void generate_single_note_midi(const MidiArgs& args)
     auto note = builder.build();
     MidiFileWriter writer;
     int tpqn = 480;
-    writer.writeSingleNoteFile(*note, args.output_file, tpqn);
+    writer.writeSingleNoteFile(*note, args.output_file, tpqn, args.controller_cc);
 }
