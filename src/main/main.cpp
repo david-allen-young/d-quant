@@ -28,30 +28,70 @@
 //    return 0;
 //}
 
+//#include "CliParser.h"
+//#include "SingleNoteGenerator.h"
+//#include <iostream>
+//
+//int main(int argc, char* argv[])
+//{
+//    std::cout << "ARGC: " << argc << "\n";
+//    for (int i = 0; i < argc; ++i)
+//    {
+//        std::cout << "argv[" << i << "]: " << argv[i] << "\n";
+//    }
+//    try
+//    {
+//        // Parse command-line arguments
+//        MidiArgs args = parse_args(argc, argv);
+//
+//        // Call the function to generate the single note MIDI file
+//        generate_single_note_midi(args);
+//    }
+//    catch (const std::exception& e)
+//    {
+//        std::cerr << "Error: " << e.what() << std::endl;
+//        return 1; // Return error code
+//    }
+//
+//    return 0; // Success
+//}
+
 #include "CliParser.h"
 #include "SingleNoteGenerator.h"
+#include "JsonConfigLoader.h"
 #include <iostream>
 
 int main(int argc, char* argv[])
 {
-    std::cout << "ARGC: " << argc << "\n";
-    for (int i = 0; i < argc; ++i)
-    {
-        std::cout << "argv[" << i << "]: " << argv[i] << "\n";
-    }
     try
     {
-        // Parse command-line arguments
-        MidiArgs args = parse_args(argc, argv);
-
-        // Call the function to generate the single note MIDI file
+        MidiArgs args;
+#if defined(_DEBUG)
+        if (argc == 1)
+        {
+            // No command-line arguments passed
+            std::cout << "[INFO] No arguments provided - loading default config file\n";
+            if (!load_args_from_json("default_test_config.json", args))
+            {
+                throw std::runtime_error("Could not load default_test_config.json");
+            }
+        }
+        else
+        {
+            args = parse_args(argc, argv);
+        }
+#else
+        args = parse_args(argc, argv);
+#endif
         generate_single_note_midi(args);
     }
     catch (const std::exception& e)
     {
         std::cerr << "Error: " << e.what() << std::endl;
-        return 1; // Return error code
+        return 1;
     }
 
-    return 0; // Success
+    return 0;
 }
+
+
