@@ -24,3 +24,6 @@ add_subdirectory(src/main)
 # Add test suite subdirectories
 add_subdirectory(tests/unit)
 
+# Add analysis tools
+add_subdirectory(tools/analyze_rhythm)
+add_subdirectory(tools/analyze_dynamics)
