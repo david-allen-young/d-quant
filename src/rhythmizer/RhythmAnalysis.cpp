@@ -43,7 +43,7 @@ void writeRhythmDeviationCSV(const std::vector<NoteData>& notes, const std::stri
         double velocityDelta = notes[i].velocity - nominalVelocity;
 
         out << std::fixed << std::setprecision(5)
-            << nominalPosition << ","
+            << static_cast<double>(i) << ","
             << deltaPos << ","
             << durationRatio << ","
             << velocityDelta << "\n";
