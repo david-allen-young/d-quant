@@ -31,7 +31,7 @@ void rhythmizer::writeRhythmDeviationCSV(const std::vector<NoteData>& notes, con
 
     const double firstNotePos = 4.0;
     const double nominalDuration = 1.0;
-    const double nominalVelocity = 80.0 / 127.0;
+    const double nominalVelocity = 60.0 / 127.0;
 
     out << "NominalPosition,DeltaPosition,DurationRatio,VelocityDelta\n";
 
