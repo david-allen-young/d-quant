@@ -29,7 +29,7 @@ void writeRhythmDeviationCSV(const std::vector<NoteData>& notes, const std::stri
     if (!out.is_open())
         return;
 
-    const double firstNotePos = 4.0;
+    const double firstNominalPos = notes.front().positionInBeats;
     const double nominalDuration = 1.0;
     const double nominalVelocity = 60.0 / 127.0;
 
@@ -37,7 +37,7 @@ void writeRhythmDeviationCSV(const std::vector<NoteData>& notes, const std::stri
 
     for (size_t i = 0; i < notes.size(); ++i)
     {
-        double nominalPosition = firstNotePos + static_cast<double>(i);
+        double nominalPosition = firstNominalPos + static_cast<double>(i);
         double deltaPos = notes[i].positionInBeats - nominalPosition;
         double durationRatio = notes[i].durationInBeats / nominalDuration;
         double velocityDelta = notes[i].velocity - nominalVelocity;
