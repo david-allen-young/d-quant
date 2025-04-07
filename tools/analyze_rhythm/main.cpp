@@ -78,7 +78,7 @@
 #include "MidiFileReader_v2.h"
 #include "MidiTrackParser.h"
 #include "Note.h"
-#include "../rhythmizer/RhythmAnalysis.h"
+#include "RhythmAnalysis.h"
 
 #include <algorithm>
 #include <filesystem>
