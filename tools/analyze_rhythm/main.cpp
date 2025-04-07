@@ -56,7 +56,7 @@ int main(int argc, char** argv)
         double durationRatio = notes[i].durationInBeats / nominalDuration;
 
         rhythmDeviations.emplace_back(deltaPos, durationRatio);
-        std::cout << "Note " << i << ": ?pos = " << deltaPos
+        std::cout << "Note " << i << ": deltaPos = " << deltaPos
                   << ", ratio = " << durationRatio << "\n";
     }
 
