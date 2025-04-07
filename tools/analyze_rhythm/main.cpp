@@ -88,18 +88,26 @@
 
 int main(int argc, char** argv)
 {
-    if (argc < 2)
+    //if (argc < 2)
+    //{
+    //    std::cout << "Usage: analyze_rhythm <input_midi_file>\n";
+    //    return 1;
+    //}
+
+    //std::string midiPath = argv[1];
+    std::string midiDir = "C:/GitHub/d-quant/assets/midi";
+    std::string midiPath = midiDir + "/Rhythmizer_Training_ORD_04Nx48_0001.midi";
+    std::cout << "Reading MIDI file: " << midiPath << "\n";
+    if (!std::filesystem::exists(midiPath))
     {
-        std::cout << "Usage: analyze_rhythm <input_midi_file>\n";
+        std::cerr << "Error: MIDI file does not exist at " << midiPath << "\n";
         return 1;
     }
-
-    std::string midiPath = argv[1];
-    std::cout << "Reading MIDI file: " << midiPath << "\n";
 
     MidiFileReader_v2 reader;
     reader.readMidi(midiPath);
     const auto& tracks = reader.getTracks();
+    std::cout << "Number of tracks found: " << tracks.size() << "\n";
 
     if (tracks.size() < 2)
     {
@@ -113,6 +121,7 @@ int main(int argc, char** argv)
     MidiTrackParser parser;
     std::vector<NoteData> notes;
     parser.extractNoteEvents(trackData, notes);
+    std::cout << "Extracted " << notes.size() << " notes from track 1\n";
 
     // Sort by start time (just to make analysis cleaner)
     std::sort(notes.begin(), notes.end(),
@@ -120,11 +129,17 @@ int main(int argc, char** argv)
               { return a.positionInBeats < b.positionInBeats; });
 
     // Ensure output directory exists
-    std::filesystem::create_directories("assets/output_csv/");
-    std::string outPath = "assets/output_csv/rhythm_deviation.csv";
+    std::filesystem::path projectRoot = "C:/GitHub/d-quant";
+    std::filesystem::path outPath = projectRoot / "assets/output_csv/rhythm_deviation.csv";
+    //std::cout << "Ensuring output directory exists: assets/output_csv/\n";
+    //std::filesystem::create_directories("assets/output_csv/");
+    //std::filesystem::path outPath = "assets/output_csv/rhythm_deviation.csv";
+    std::cout << "Resolved absolute path: " << std::filesystem::absolute(outPath) << "\n";
+
 
     // Write Position, DurationRatio, Velocity
-    rhythmizer::writeRhythmDeviationCSV(notes, outPath);
+    rhythmizer::writeRhythmDeviationCSV(notes, outPath.string());
+    std::cout << "Finished writing CSV.\n";
 
     return 0;
 }
