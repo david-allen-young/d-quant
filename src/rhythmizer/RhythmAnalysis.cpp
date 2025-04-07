@@ -23,7 +23,7 @@ namespace rhythmizer {
 //    out.close();
 //}
 
-void rhythmizer::writeRhythmDeviationCSV(const std::vector<NoteData>& notes, const std::string& filename)
+void writeRhythmDeviationCSV(const std::vector<NoteData>& notes, const std::string& filename)
 {
     std::ofstream out(filename);
     if (!out.is_open())
