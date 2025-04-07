@@ -1,5 +1,7 @@
 #include "MidiTrackParser.h"
 #include "Point.h"
+#include "Note.h"
+#include <unordered_map>
 
 enum MidiControllers
 {
@@ -155,6 +157,106 @@ void MidiTrackParser::parseTrackEvents(std::vector<char>& track_data, std::vecto
             }
 
             if (i + dataBytes <= track_data.size())
+            {
+                i += dataBytes;
+            }
+            else
+            {
+                break; // avoid out-of-bounds
+            }
+        }
+    }
+}
+
+void MidiTrackParser::extractNoteEvents(std::vector<char>& trackData, std::vector<Note>& notes)
+{
+    int i = 0;
+    unsigned char runningStatus = 0;
+    int tick_position = 0; // Cumulative tick count from delta times
+
+    std::unique_ptr<NoteData> note;
+
+    while (i < trackData.size())
+    {
+        // Step 1: Parse delta time
+        uint32_t deltaTime = readVariableLengthQuantity(trackData, i);
+        tick_position += deltaTime;
+        if (i >= trackData.size())
+            break;
+
+        unsigned char byte = static_cast<unsigned char>(trackData[i]);
+
+        // Step 2: Check for meta or SysEx events
+        if (byte == 0xFF)
+        {
+            // Meta event
+            ++i;
+            if (i >= trackData.size())
+                break;
+
+            unsigned char metaType = static_cast<unsigned char>(trackData[i++]);
+            uint32_t metaLength = readVariableLengthQuantity(trackData, i);
+            i += metaLength;
+            continue;
+        }
+        else if (byte == 0xF0 || byte == 0xF7)
+        {
+            // SysEx event
+            ++i;
+            uint32_t sysexLength = readVariableLengthQuantity(trackData, i);
+            i += sysexLength;
+            continue;
+        }
+
+        // Step 3: Channel voice messages
+        if (byte & 0x80)
+        {
+            // New status byte
+            runningStatus = byte;
+            ++i;
+        }
+
+        // At this point, 'runningStatus' is the current status
+        unsigned char eventType = runningStatus & 0xF0;
+        unsigned char channel = runningStatus & 0x0F;
+
+        if (eventType == NoteOn && i + 1 < trackData.size())
+        {
+            unsigned char noteNum = static_cast<unsigned char>(trackData[i + 1]);
+            double positionInBeats = (double)tick_position / 480.0;
+            i += 2;
+            if (!note)
+            {
+                note = std::make_unique<NoteData>();
+            }
+            note->keyNumber = static_cast<int>(noteNum);
+            note->positionInBeats = positionInBeats;
+        }
+        else if (eventType == NoteOff && i + 1 < trackData.size())
+        {
+            unsigned char noteNum = static_cast<unsigned char>(trackData[i + 1]);
+            double positionInBeats = (double)tick_position / 480.0;
+            i += 2;
+            if (!note)
+            {
+                // skip orphaned NoteOff event
+                continue;
+            }
+            note->durationInBeats = positionInBeats - note->positionInBeats;
+            notes.emplace_back(*note);
+            note.reset();
+        }
+        else
+        {
+            // For other channel events, we need to know how many data bytes to skip
+            // Most take 2 data bytes, except ProgramChange and ChannelPressure (1 data byte)
+            int dataBytes = 2;
+            if ((eventType == ProgramChange) || (eventType == ChannelPressure))
+            {
+                dataBytes = 1;
+            }
+
+            if (i + dataBytes <= trackData.size())
             {
                 i += dataBytes;
             }
