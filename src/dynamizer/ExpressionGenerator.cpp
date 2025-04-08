@@ -41,7 +41,14 @@ std::vector<std::pair<double, int>> generateBreathCCFromEnvelope(
         }
         lastCC = ccVal;
         double positionInBeats = point.time * durationInBeats;
-        result.emplace_back(positionInBeats, ccVal);
+        if (!result.empty() && std::abs(positionInBeats - result.back().first) < 0.01)
+        {
+            result.back().second = ccVal;
+        }
+        else
+        {
+            result.emplace_back(positionInBeats, ccVal);
+        }
     }
 
     return result;
