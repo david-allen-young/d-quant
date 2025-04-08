@@ -90,3 +90,8 @@ std::unique_ptr<NoteInterface> NoteBuilder::build()
 	std::sort(data.intonation.begin(), data.intonation.end());
 	return std::make_unique<NoteImplV1>(data, prev, next);
 }
+
+const NoteData& NoteBuilder::getData() const
+{
+    return data;
+};

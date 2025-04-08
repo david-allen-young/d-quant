@@ -32,6 +32,8 @@ public:
 	void setPreviousNote(NoteInterface* note) override;
 	void setNextNote(NoteInterface* note) override;
 	std::unique_ptr<NoteInterface> build() override;
+    const NoteData& getData() const;
+
 protected:
 	NoteData data;
 	NoteInterface* prev = nullptr;
