@@ -12,6 +12,7 @@ struct MidiArgs {
     int note_number = 60;
     float position_beats = 0.0f;
     float duration_beats = 1.0f;
+    std::string articulation_preset = "default";
     std::string dyn_start = "mf";
     std::string dyn_end = "mf";
     std::string dyn_preset = "default";

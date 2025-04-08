@@ -62,18 +62,27 @@ double getDurationRatio()
     return generator.getDurationRatio();
 }
 
-void applyTiming(NoteBuilderMidi& builder, double nominalPosition, double nominalDuration)
+void applyTiming(NoteBuilderMidi& builder, double nominalPosition, double nominalDuration, std::string articulation)
 {
     double positionOffset = getPositionOffset();
-    double durationRatio = getDurationRatio();
     double position = nominalPosition + positionOffset;
+    if (articulation == "staccato")
+    {
+        nominalDuration *= 0.6;
+    }
     double duration;
+    double durationRatio = getDurationRatio();
     if (nominalDuration > 1.0)
     {
-        duration = (nominalDuration - 1.0) + (1.0 * durationRatio);
+        double trim = articulation == "tenuto" ? 0.1 : 1.0;
+        duration = (nominalDuration - trim) + (trim * durationRatio);
     }
     else
     {
+        if (articulation == "tenuto")
+        {
+            durationRatio = (durationRatio + nominalDuration) / 2.0;
+        }
         duration = nominalDuration * durationRatio;
     }
     builder.setPosition(position);

@@ -52,7 +52,7 @@ void generate_single_note_midi(const MidiArgs& args)
     // Eventually: rhythmizer::process(builder); -> tweak position/duration
     double nominalPosition = args.position_beats;
     double nominalDuration = args.duration_beats;
-    rhythmizer::applyTiming(builder, nominalPosition, nominalDuration);
+    rhythmizer::applyTiming(builder, nominalPosition, nominalDuration, args.articulation_preset);
 
     // === [3] Dynamizer: Generate envelope -> CC ===
     std::vector<std::string> envelopePaths;
@@ -90,7 +90,8 @@ void generate_single_note_midi(const MidiArgs& args)
     std::cout << "Using envelope: " << envelopePaths[rIdx] << std::endl;
 
     auto breathCC = generateBreathCCFromEnvelope(envelope,
-                                                 args.duration_beats,
+                                                 /*args.duration_beats,*/
+                                                 builder.getData().durationInBeats,
                                                  dynStart,
                                                  dynEnd,
                                                  /*dynMin*/dynPreset.first,

@@ -20,6 +20,8 @@ bool load_args_from_json(const std::string& path, MidiArgs& out_args)
         out_args.position_beats = j["position_beats"];
     if (j.contains("duration_beats"))
         out_args.duration_beats = j["duration_beats"];
+    if (j.contains("articulation_preset"))
+        out_args.articulation_preset = j["articulation_preset"];
     if (j.contains("dyn_start"))
         out_args.dyn_start = j["dyn_start"];
     if (j.contains("dyn_end"))

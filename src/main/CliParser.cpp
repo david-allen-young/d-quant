@@ -38,6 +38,10 @@ MidiArgs parse_args(int argc, char* argv[])
         {
             args.duration_beats = std::stof(argv[++i]);
         }
+        else if (key == "--art_preset" && i + 1 < argc)
+        {
+            args.articulation_preset = argv[++i];
+        }
         else if (key == "--dyn_start" && i + 1 < argc)
         {
             args.dyn_start = argv[++i];
