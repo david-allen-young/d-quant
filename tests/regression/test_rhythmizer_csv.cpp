@@ -6,15 +6,18 @@
 #include <fstream>
 #include <iostream>
 
+#include "PipelineArgsRegistry.h"
 namespace fs = std::filesystem;
 using namespace rhythmizer;
 
 TEST_CASE("Rhythmizer processes training MIDI file and writes deviation CSV", "[rhythmizer]")
 {
-    const std::string inputFile = "C:/GitHub/d-quant/assets/midi/sample_training_file_rhythmizer.mid";
-    const std::string outDir = "test_output/rhythmizer";
-    const std::string outFile = outDir + "/deviation_from_midi.csv";
-    fs::create_directories(outDir);
+    const auto& args = getPipelineArgs();
+    const std::string inputFile = args.rhythmizer_midi_path;
+    const std::string outFile = args.rhythm_deviation_csv;
+    
+    // Ensure parent directory of output CSV exists
+    fs::create_directories(fs::path(outFile).parent_path());
 
     MidiFileReader_v2 midi;
     midi.readMidi(inputFile);
