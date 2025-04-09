@@ -3,7 +3,7 @@
 add_executable(dquant_regression_tests
     test_midi_to_envelope_csv.cpp
     test_morph2_generation.cpp
-    # ... other regression tests
+    test_breath_cc_generation.cpp
     ../../src/main/CliParser.cpp
     ../../src/main/JsonConfigLoader.cpp
 )
