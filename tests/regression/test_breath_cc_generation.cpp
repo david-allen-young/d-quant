@@ -1,5 +1,6 @@
 #include "AnalysisHelpers.h"
 #include "ExpressionGenerator.h"
+#include "test_data_utils.h"
 #include <catch2/catch_test_macros.hpp>
 #include <filesystem>
 #include <iostream>
@@ -10,6 +11,7 @@ namespace fs = std::filesystem;
 
 TEST_CASE("run_breath_cc_generation produces valid CC data", "[regression]")
 {
+    ensure_morphs_exist();
     const std::string inputDir = "test_output/morphs"; // from previous test
     const std::string outputDir = "test_output/breath_cc";
 
