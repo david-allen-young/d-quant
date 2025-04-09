@@ -27,3 +27,49 @@ bool load_args_from_json(const std::string& path, PipelineArgs& out_args)
 
     return true;
 }
+
+#include "PathUtils.h" // for env_or_fallback()
+#include <iostream>
+
+PipelineArgs getEffectivePipelineArgs(int argc, char* argv[])
+{
+    PipelineArgs args;
+
+    std::string configPath;
+
+    // CLI support for --config <file>
+    for (int i = 1; i < argc - 1; ++i)
+    {
+        if (std::string(argv[i]) == "--config")
+        {
+            configPath = argv[i + 1];
+            break;
+        }
+    }
+
+    if (!configPath.empty())
+    {
+        if (!load_args_from_json(configPath, args))
+        {
+            std::cerr << "Warning: Failed to load config: " << configPath << "\n";
+        }
+    }
+
+    // Fallbacks for anything missing
+    if (args.input_midi_path.empty())
+        args.input_midi_path = env_or_fallback("DQUANT_INPUT_MIDI", "assets/midi/sample.mid");
+
+    if (args.envelope_csv_dir.empty())
+        args.envelope_csv_dir = env_or_fallback("DQUANT_ENVELOPES", "test_output/envelopes");
+
+    if (args.morph_csv_dir.empty())
+        args.morph_csv_dir = env_or_fallback("DQUANT_MORPHS", "test_output/morphs");
+
+    if (args.rhythm_deviation_csv.empty())
+        args.rhythm_deviation_csv = env_or_fallback("DQUANT_RHYTHM_CSV", "test_output/rhythmizer/deviation.csv");
+
+    if (args.output_dir.empty())
+        args.output_dir = env_or_fallback("DQUANT_OUT_DIR", "test_output");
+
+    return args;
+}
