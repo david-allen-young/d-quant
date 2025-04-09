@@ -1,5 +1,6 @@
 #include "AnalysisHelpers.h"
 #include "dynamizer.h"
+#include "test_data_utils.h"
 #include <catch2/catch_test_macros.hpp>
 #include <filesystem>
 #include <iostream>
@@ -8,6 +9,7 @@ namespace fs = std::filesystem;
 
 TEST_CASE("run_morph2_generation_example generates valid envelopes", "[regression]")
 {
+    ensure_envelopes_exist();
     const std::string inputDir = "test_output/envelopes"; // From previous test
     const std::string outputDir = "test_output/morphs";
     const int count = 10;
