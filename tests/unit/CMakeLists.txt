@@ -1,4 +1,4 @@
-add_executable(dquant_tests
+add_executable(dquant_unit_tests
     test_core.cpp
     test_envelope_morphing.cpp
 	test_csv_io.cpp
@@ -9,7 +9,7 @@ add_executable(dquant_tests
     ../../src/main/JsonConfigLoader.cpp
 )
 
-target_link_libraries(dquant_tests
+target_link_libraries(dquant_unit_tests
     PRIVATE
     core
     rhythmizer
@@ -18,7 +18,7 @@ target_link_libraries(dquant_tests
     Catch2::Catch2WithMain
 )
 
-target_include_directories(dquant_tests
+target_include_directories(dquant_unit_tests
     PRIVATE
     ${CMAKE_CURRENT_SOURCE_DIR}
     ${PROJECT_SOURCE_DIR}/src
