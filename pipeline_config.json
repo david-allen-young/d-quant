@@ -1,0 +1,8 @@
+{
+  "dynamizer_midi_path": "C:/GitHub/d-quant/assets/midi/sample_training_file_dynamizer.mid",
+  "rhythmizer_midi_path": "C:/GitHub/d-quant/assets/midi/sample_training_file_rhythmizer.mid",
+  "envelope_csv_dir": "C:/GitHub/d-quant/test_output/dynamizer/envelopes",
+  "morph_csv_dir": "C:/GitHub/d-quant/test_output/dynamizer/morphs",
+  "rhythm_deviation_csv": "C:/GitHub/d-quant/test_output/rhythmizer/deviation.csv",
+  "output_dir": "C:/GitHub/d-quant/test_output"
+}
