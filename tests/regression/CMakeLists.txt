@@ -1,6 +1,7 @@
 # tests/regression/CMakeLists.txt
 
 add_executable(dquant_regression_tests
+    main.cpp
     test_midi_to_envelope_csv.cpp
     test_morph2_generation.cpp
     test_breath_cc_generation.cpp
@@ -17,7 +18,7 @@ target_link_libraries(dquant_regression_tests
     rhythmizer
     dynamizer
     intonizer
-    Catch2::Catch2WithMain
+    Catch2::Catch2
 )
 
 target_include_directories(dquant_regression_tests
