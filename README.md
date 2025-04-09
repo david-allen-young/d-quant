@@ -82,7 +82,7 @@ These can be visualized using Python scripts in the companion repo `d-quant-visu
 
 ## License
 
-MIT License. See `LICENSE` file.
+Apache 2 License. See `LICENSE` file.
 
 ---
 
