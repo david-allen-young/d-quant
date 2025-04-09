@@ -14,8 +14,10 @@ bool load_args_from_json(const std::string& path, PipelineArgs& out_args)
     json j;
     file >> j;
 
-    if (j.contains("input_midi_path"))
-        out_args.input_midi_path = j["input_midi_path"];
+    if (j.contains("dynamizer_midi_path"))
+        out_args.dynamizer_midi_path = j["dynamizer_midi_path"];
+    if (j.contains("rhythmizer_midi_path"))
+        out_args.rhythmizer_midi_path = j["rhythmizer_midi_path"];
     if (j.contains("envelope_csv_dir"))
         out_args.envelope_csv_dir = j["envelope_csv_dir"];
     if (j.contains("morph_csv_dir"))
@@ -56,8 +58,11 @@ PipelineArgs getEffectivePipelineArgs(int argc, char* argv[])
     }
 
     // Fallbacks for anything missing
-    if (args.input_midi_path.empty())
-        args.input_midi_path = env_or_fallback("DQUANT_INPUT_MIDI", "assets/midi/sample.mid");
+    if (args.dynamizer_midi_path.empty())
+        args.dynamizer_midi_path = env_or_fallback("DQUANT_DYNAMIZER_MIDI", "assets/midi/sample_training_file_dynamizer.mid");
+
+    if (args.rhythmizer_midi_path.empty())
+        args.rhythmizer_midi_path = env_or_fallback("DQUANT_RHYTHMIZER_MIDI", "assets/midi/sample_training_file_rhythmizer.mid");
 
     if (args.envelope_csv_dir.empty())
         args.envelope_csv_dir = env_or_fallback("DQUANT_ENVELOPES", "test_output/envelopes");
