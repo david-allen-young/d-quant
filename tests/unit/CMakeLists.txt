@@ -4,6 +4,7 @@ add_executable(dquant_tests
 	test_csv_io.cpp
 	test_notebuilder.cpp
 	test_cli_parser.cpp
+	test_json_config.cpp
 	../../src/main/CliParser.cpp
     ../../src/main/JsonConfigLoader.cpp
 )
