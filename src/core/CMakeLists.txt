@@ -5,6 +5,8 @@ add_library(core
 	MidiFileWriter.cpp
     MidiTrackParser.cpp
     NoteBuilder.cpp
+	PipelineConfigLoader.cpp
 )
 
 target_include_directories(core PUBLIC ${CMAKE_CURRENT_SOURCE_DIR})
+target_include_directories(core PRIVATE ${PROJECT_SOURCE_DIR}/external/json)
