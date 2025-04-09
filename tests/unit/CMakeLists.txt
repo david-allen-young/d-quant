@@ -1,6 +1,8 @@
 add_executable(dquant_tests
     test_core.cpp
-    # Add other test files here
+    test_envelope_morphing.cpp
+	test_csv_io.cpp
+	test_notebuilder.cpp
 )
 
 target_link_libraries(dquant_tests
