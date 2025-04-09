@@ -6,6 +6,7 @@ add_executable(dquant_regression_tests
     test_breath_cc_generation.cpp
     test_expressive_note.cpp
     test_rhythmizer_csv.cpp
+    test_apply_timing.cpp
     ../../src/main/CliParser.cpp
     ../../src/main/JsonConfigLoader.cpp
 )
