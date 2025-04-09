@@ -81,7 +81,7 @@ void applyTiming(NoteBuilderMidi& builder, double nominalPosition, double nomina
     {
         if (articulation == "tenuto")
         {
-            durationRatio = (durationRatio + nominalDuration) / 2.0;
+            durationRatio = (durationRatio + 1.0) / 2.0;
         }
         duration = nominalDuration * durationRatio;
     }
