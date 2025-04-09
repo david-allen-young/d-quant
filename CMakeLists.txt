@@ -23,6 +23,7 @@ add_subdirectory(src/main)
 
 # Add test suite subdirectories
 add_subdirectory(tests/unit)
+add_subdirectory(tests/regression)
 
 # Add analysis tools
 add_subdirectory(tools/analyze_rhythm)
