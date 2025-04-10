@@ -5,13 +5,15 @@
 #include <filesystem>
 #include <iostream>
 
+#include "PipelineArgs.h"
 namespace fs = std::filesystem;
 
 TEST_CASE("run_morph2_generation_example generates valid envelopes", "[regression]")
 {
     ensure_envelopes_exist();
-    const std::string inputDir = "test_output/envelopes"; // From previous test
-    const std::string outputDir = "test_output/morphs";
+    const auto& args = getPipelineArgs();
+    const std::string inputDir = args.envelope_csv_dir;
+    const std::string outputDir = args.morph_csv_dir;
     const int count = 10;
 
     fs::create_directories(outputDir);
