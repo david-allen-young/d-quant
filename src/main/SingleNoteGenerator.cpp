@@ -57,7 +57,8 @@ void generate_single_note_midi(const MidiArgs& args)
     // === [3] Dynamizer: Generate envelope -> CC ===
     std::vector<std::string> envelopePaths;
     std::vector<std::vector<Point>> morphedEnvelopes;
-    const std::string morphResultsDir = "C:/GitHub/d-quant/assets/morph_csv";
+    //const std::string morphResultsDir = "C:/GitHub/d-quant/assets/morph_csv";
+    const std::string& morphResultsDir = args.morph_csv_dir;
     for (const auto& entry : std::filesystem::directory_iterator(morphResultsDir))
     {
         if (entry.path().extension() == ".csv")
