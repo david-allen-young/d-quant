@@ -4,12 +4,14 @@
 #include <filesystem>
 #include <iostream>
 
+#include "PipelineArgsRegistry.h"
 namespace fs = std::filesystem;
 
 inline void ensure_envelopes_exist()
 {
-    const std::string inputMidi = "assets/midi/sample_training_file_dynamizer.mid";
-    const std::string envelopeDir = "test_output/envelopes";
+    const auto& args = getPipelineArgs();
+    const std::string inputMidi = args.dynamizer_midi_path;
+    const std::string envelopeDir = args.envelope_csv_dir;
 
     if (!fs::exists(envelopeDir) || fs::is_empty(envelopeDir))
     {
@@ -22,8 +24,8 @@ inline void ensure_envelopes_exist()
 inline void ensure_morphs_exist()
 {
     ensure_envelopes_exist(); // morphs depend on envelope input
-
-    const std::string morphDir = "test_output/morphs";
+    const auto& args = getPipelineArgs();
+    const std::string morphDir = args.morph_csv_dir;
     if (!fs::exists(morphDir) || fs::is_empty(morphDir))
     {
         std::cout << "[SETUP] Generating morphs from envelopes...\n";
