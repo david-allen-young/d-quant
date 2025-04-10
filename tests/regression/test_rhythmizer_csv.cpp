@@ -21,6 +21,7 @@ TEST_CASE("Rhythmizer processes training MIDI file and writes deviation CSV", "[
 
     MidiFileReader_v2 midi;
     midi.readMidi(inputFile);
+    std::cout << "Trying to read MIDI file: " << inputFile << "\n";
     REQUIRE(midi.getTracks().size() > 1);
 
     std::vector<NoteData> notes;
