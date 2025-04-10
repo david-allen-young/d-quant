@@ -4,12 +4,14 @@
 #include <fstream>
 #include <iostream>
 
+#include "PipelineArgsRegistry.h"
 namespace fs = std::filesystem;
 
 TEST_CASE("run_midi_to_envelope_csv outputs expected CSV files", "[regression]")
 {
-    const std::string inputMidi = "C:/GitHub/d-quant/assets/midi/sample_training_file_dynamizer.mid";
-    const std::string outDir = "test_output/envelopes";
+    const auto& args = getPipelineArgs();
+    const std::string inputMidi = args.dynamizer_midi_path;
+    const std::string outDir = args.envelope_csv_dir;
 
     fs::create_directories(outDir);
     std::cout << "Writing envelope CSVs to: " << fs::absolute(outDir) << "\n";

@@ -18,4 +18,6 @@ struct MidiArgs {
     std::string dyn_preset = "default";
     MidiController controller_cc = MidiController::Modulation;
     std::string output_file = "output.mid";
+    std::string morph_csv_dir;
+    std::string rhythm_deviation_csv; // for future rhythmizer integration
 };
