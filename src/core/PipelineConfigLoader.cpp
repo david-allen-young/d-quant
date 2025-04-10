@@ -39,14 +39,24 @@ PipelineArgs getEffectivePipelineArgs(int argc, char* argv[])
 
     std::string configPath;
 
-    // CLI support for --config <file>
-    for (int i = 1; i < argc - 1; ++i)
+    // If args are passed, check for --config
+    if (argc > 1)
     {
-        if (std::string(argv[i]) == "--config")
+        for (int i = 1; i < argc - 1; ++i)
         {
-            configPath = argv[i + 1];
-            break;
+            if (std::string(argv[i]) == "--config")
+            {
+                configPath = argv[i + 1];
+                break;
+            }
         }
+    }
+
+    // If no args, default to pipeline_config.json
+    if (argc == 1)
+    {
+        configPath = "pipeline_config.json";
+        std::cout << "[INFO] No arguments provided - loading default config: " << configPath << "\n";
     }
 
     if (!configPath.empty())
