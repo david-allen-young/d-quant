@@ -7,13 +7,15 @@
 #include <iostream>
 #include <random>
 
+#include "PipelineArgsRegistry.h"
 using namespace dynamizer;
 namespace fs = std::filesystem;
 
 TEST_CASE("NoteBuilder can write an expressive note to MIDI", "[regression]")
 {
-    const std::string inputDir = "test_output/morphs";
-    const std::string outputDir = "test_output/midi";
+    const auto& args = getPipelineArgs();
+    const std::string inputDir = args.morph_csv_dir;
+    const std::string outputDir = args.output_dir + "/midi";
     fs::create_directories(outputDir);
 
     // Load a random envelope
