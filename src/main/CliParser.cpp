@@ -66,6 +66,15 @@ MidiArgs parse_args(int argc, char* argv[])
         {
             ++i; // already handled
         }
+        else if (key == "--morphs" && i + 1 < argc)
+        {
+            args.morph_csv_dir = argv[++i];
+        }
+        else if (key == "--deviations" && i + 1 < argc)
+        {
+            args.rhythm_deviation_csv = argv[++i];
+        }
+
         else
         {
             std::cerr << "Unknown or malformed argument: " << key << "\n";
