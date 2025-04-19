@@ -1,24 +1,3 @@
-// #include "SingleNoteGenerator.h"
-// #include <iostream>
-//
-// void generate_single_note_midi(const MidiArgs& args)
-//{
-//     std::cout << "Generating single note MIDI file...\n";
-//     std::cout << "Note: " << args.note_number << "\n";
-//     std::cout << "Position (beats): " << args.position_beats << "\n";
-//     std::cout << "Duration (beats): " << args.duration_beats << "\n";
-//     std::cout << "Dynamics: " << args.dyn_start << " - " << args.dyn_end << "\n";
-//     std::cout << "Dynamic preset: " << args.dyn_preset << "\n";
-//     std::cout << "Controller CC: " << args.controller_cc << "\n";
-//     std::cout << "Output file: " << args.output_file << "\n";
-//
-//     // TODO:
-//     // - Apply rhythmizer to position/duration
-//     // - Use dynamizer to generate CC envelope (based on dyn_start -> dyn_end)
-//     // - Use intonizer to create pitch wheel envelope
-//     // - Write MIDI events and save file
-// }
-
 #include "SingleNoteGenerator.h"
 #include "ExpressionGenerator.h" // for generateBreathCCFromEnvelope
 #include "rhythmizer.h"
@@ -37,19 +16,13 @@ using dynamizer::getRangeForPreset;
 using dynamizer::presetFromStr;
 using dynamizer::generateBreathCCFromEnvelope;
 
-//using rhythmizer::applyTiming;
-
 void generate_single_note_midi(const MidiArgs& args)
 {
     // === [1] Create the base NoteBuilder ===
     NoteBuilderMidi builder;
     builder.setKeyNumber(args.note_number);
-    //builder.setVelocity(64); // neutral, or map from args later
-    //builder.setPosition(args.position_beats);
-    //builder.setDuration(args.duration_beats);
 
-    // === [2] Rhythmizer stub (future): just passthrough for now ===
-    // Eventually: rhythmizer::process(builder); -> tweak position/duration
+    // === [2] Rhythmizer : Apply timing adjustments ===
     double nominalPosition = args.position_beats;
     double nominalDuration = args.duration_beats;
     rhythmizer::applyTiming(builder, nominalPosition, nominalDuration, args.articulation_preset);
@@ -57,9 +30,37 @@ void generate_single_note_midi(const MidiArgs& args)
     // === [3] Dynamizer: Generate envelope -> CC ===
     std::vector<std::string> envelopePaths;
     std::vector<std::vector<Point>> morphedEnvelopes;
+
     //const std::string morphResultsDir = "C:/GitHub/d-quant/assets/morph_csv";
-    const std::string& morphResultsDir = args.morph_csv_dir;
-    for (const auto& entry : std::filesystem::directory_iterator(morphResultsDir))
+   // const std::string& morphResultsDir = args.morph_csv_dir;
+
+    //std::string subdir;
+    //if (args.dyn_start < args.dyn_end)
+    //    subdir = "crescendo";
+    //else if (args.dyn_start > args.dyn_end)
+    //    subdir = "diminuendo";
+    //else
+    //    subdir = "stable";
+
+    ExpressionMark dynStart = markFromStr(args.dyn_start);
+    ExpressionMark dynEnd = markFromStr(args.dyn_end);
+
+    std::cout << "dynStart: " << static_cast<int>(dynStart)
+              << " | dynEnd: " << static_cast<int>(dynEnd) << std::endl;
+
+    std::string subdir;
+    if (dynStart < dynEnd)
+        subdir = "crescendo";
+    else if (dynStart > dynEnd)
+        subdir = "diminuendo";
+    else
+        subdir = "stable";
+
+
+    std::filesystem::path morphDir = (std::filesystem::path(args.morph_csv_dir) / subdir / "generated").lexically_normal();
+    std::cout << "Selected morph directory: " << morphDir << std::endl;
+
+    for (const auto& entry : std::filesystem::directory_iterator(/*morphResultsDir*/morphDir))
     {
         if (entry.path().extension() == ".csv")
         {
@@ -74,12 +75,9 @@ void generate_single_note_midi(const MidiArgs& args)
     }
     if (morphedEnvelopes.empty())
     {
-        throw std::runtime_error("No morph envelopes found in: " + morphResultsDir);
+        throw std::runtime_error("No morph envelopes found in: " + /*morphResultsDir*/morphDir.string());
     }
-    ExpressionMark dynStart = markFromStr(args.dyn_start);
-    ExpressionMark dynEnd = markFromStr(args.dyn_end);
-    //ExpressionMark dynMin = ExpressionMark::pp;
-    //ExpressionMark dynMax = ExpressionMark::ff;
+
     auto dynPreset = getRangeForPreset(presetFromStr(args.dyn_preset));
 
     std::mt19937 rng(std::random_device{}());
@@ -91,12 +89,17 @@ void generate_single_note_midi(const MidiArgs& args)
     std::cout << "Using envelope: " << envelopePaths[rIdx] << std::endl;
 
     auto breathCC = generateBreathCCFromEnvelope(envelope,
-                                                 /*args.duration_beats,*/
                                                  builder.getData().durationInBeats,
                                                  dynStart,
                                                  dynEnd,
-                                                 /*dynMin*/dynPreset.first,
-                                                 /*dynMax*/dynPreset.second);
+                                                 dynPreset.first,
+                                                 dynPreset.second);
+
+    std::cout << "[DEBUG] Expression CC mapping:" << std::endl;
+    for (const auto& [pos, cc] : breathCC)
+    {
+        std::cout << "  beat " << pos << " -> CC " << cc << std::endl;
+    }
 
     for (const auto& [pos, cc] : breathCC)
         builder.addExpression(pos, cc);

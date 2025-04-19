@@ -27,9 +27,18 @@ std::vector<std::pair<double, int>> generateBreathCCFromEnvelope(
         return result;
     }
 
+    std::vector<Point> adjustedEnvelope = envelope;
+    if (startVal > endVal)
+    {
+        for (auto& pt : adjustedEnvelope)
+        {
+            pt.value = 1.0 - pt.value;
+        }
+    }
+
     // Map each envelope point to a scaled value across the dynamic range
     int lastCC = -1;
-    for (const auto& point : envelope)
+    for (const auto& point : /*envelope*/adjustedEnvelope)
     {
         double alpha = point.value; // normalized [0–1] envelope
         double dynamicVal = startVal + alpha * (endVal - startVal);
