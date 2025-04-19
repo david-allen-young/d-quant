@@ -45,6 +45,9 @@ void generate_single_note_midi(const MidiArgs& args)
     ExpressionMark dynStart = markFromStr(args.dyn_start);
     ExpressionMark dynEnd = markFromStr(args.dyn_end);
 
+    std::cout << "dynStart: " << static_cast<int>(dynStart)
+              << " | dynEnd: " << static_cast<int>(dynEnd) << std::endl;
+
     std::string subdir;
     if (dynStart < dynEnd)
         subdir = "crescendo";
@@ -91,6 +94,12 @@ void generate_single_note_midi(const MidiArgs& args)
                                                  dynEnd,
                                                  dynPreset.first,
                                                  dynPreset.second);
+
+    std::cout << "[DEBUG] Expression CC mapping:" << std::endl;
+    for (const auto& [pos, cc] : breathCC)
+    {
+        std::cout << "  beat " << pos << " -> CC " << cc << std::endl;
+    }
 
     for (const auto& [pos, cc] : breathCC)
         builder.addExpression(pos, cc);
