@@ -20,30 +20,30 @@ std::vector<std::pair<double, int>> generateBreathCCFromEnvelope(
     int startVal = static_cast<int>(startDynamic);
     int endVal = static_cast<int>(endDynamic);
 
-    if (startVal == endVal)
+if (startVal == endVal)
     {
-        // Calculate center of the envelope
-        double envMean = 0.0;
+        // Find min/max of envelope values
+        double minEnv = envelope.front().value;
+        double maxEnv = envelope.front().value;
         for (const auto& pt : envelope)
-            envMean += pt.value;
-        envMean /= static_cast<double>(envelope.size());
+        {
+            minEnv = std::min(minEnv, pt.value);
+            maxEnv = std::max(maxEnv, pt.value);
+        }
 
-        // Safety check to avoid divide by zero
-        double epsilon = 1e-6;
-        double scale = (maxVal - minVal) > epsilon ? 1.0 / (envMean + epsilon) : 1.0;
+        double range = maxEnv - minEnv;
+        if (range < 1e-5)
+            range = 1.0; // fallback to avoid divide-by-zero
 
         for (const auto& point : envelope)
         {
-            // Scale and offset to match desired center
-            double adjusted = point.value * scale;
+            // Normalize to [0.0, 1.0]
+            double normalized = (point.value - minEnv) / range;
 
-            // Clamp to [0.0, 1.0]
-            adjusted = std::clamp(adjusted, 0.0, 1.0);
+            // Use normalized to interpolate around startVal
+            double dynamicVal = static_cast<double>(startVal) + (normalized - 0.5) * (maxVal - minVal) * 0.5;
 
-            // Map to dynamic range
-            double dynamicVal = minVal + adjusted * (maxVal - minVal);
-
-            // Clamp again to make sure we stay inside bounds
+            // Clamp to dynamic range
             dynamicVal = std::clamp(dynamicVal, static_cast<double>(minVal), static_cast<double>(maxVal));
 
             double norm = (dynamicVal - minVal) / (maxVal - minVal);
