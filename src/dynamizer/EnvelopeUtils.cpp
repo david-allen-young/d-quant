@@ -142,3 +142,13 @@ std::vector<double> morphFromTwoInputs(const Morph2Params& p)
 
     return result;
 }
+
+double computeEnvelopeMean(const std::vector<Point>& envelope)
+{
+    if (envelope.empty())
+        return 0.0;
+    double sum = 0.0;
+    for (const auto& pt : envelope)
+        sum += pt.value;
+    return sum / static_cast<double>(envelope.size());
+}
