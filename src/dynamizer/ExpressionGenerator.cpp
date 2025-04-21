@@ -18,13 +18,14 @@ std::vector<std::pair<double, int>> generateBreathCCFromEnvelope(
 {
     std::vector<std::pair<double, int>> result;
 
-    int minVal = static_cast<int>(minDynamicInScore) - 1;
+    int minVal = static_cast<int>(minDynamicInScore);
     int maxVal = static_cast<int>(maxDynamicInScore);
     int startVal = static_cast<int>(startDynamic);
     int endVal = static_cast<int>(endDynamic);
 
     if (startVal == endVal)
     {
+        minVal -= 1;
         double rangeMark = static_cast<double>(maxVal - minVal) * 1.01;
         double normalizedMark = (startVal - minVal) / rangeMark;
         for (const auto& pt : envelope)
