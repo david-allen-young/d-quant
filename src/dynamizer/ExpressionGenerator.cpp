@@ -1,5 +1,7 @@
 #include "ExpressionGenerator.h"
+#include "ExpressionMarks.h" // for expressionMarkToCC
 #include <algorithm>
+#include <cmath>
 
 namespace dynamizer
 {
@@ -20,7 +22,7 @@ std::vector<std::pair<double, int>> generateBreathCCFromEnvelope(
     int startVal = static_cast<int>(startDynamic);
     int endVal = static_cast<int>(endDynamic);
 
-if (startVal == endVal)
+    if (startVal == endVal)
     {
         // Find min/max of envelope values
         double minEnv = envelope.front().value;
@@ -40,17 +42,12 @@ if (startVal == endVal)
             // Normalize to [0.0, 1.0]
             double normalized = (point.value - minEnv) / range;
 
-            //// Use normalized to interpolate around startVal
-            //double dynamicVal = static_cast<double>(startVal) + (normalized - 0.5) * (maxVal - minVal) * 0.5;
-
             double fluctuationRange = (maxVal - minVal) * 0.3;
             double dynamicVal = static_cast<double>(startVal) + (normalized - 0.5) * fluctuationRange;
-
-            // Clamp to dynamic range
             dynamicVal = std::clamp(dynamicVal, static_cast<double>(minVal), static_cast<double>(maxVal));
 
             double norm = (dynamicVal - minVal) / (maxVal - minVal);
-            int ccVal = static_cast<int>(norm * 127.0);
+            int ccVal = static_cast<int>(norm * 127.0); // KEEP THIS
 
             double positionInBeats = point.time * durationInBeats;
             result.emplace_back(positionInBeats, ccVal);
@@ -68,14 +65,16 @@ if (startVal == endVal)
         }
     }
 
-    // Map each envelope point to a scaled value across the dynamic range
     int lastCC = -1;
-    for (const auto& point : /*envelope*/adjustedEnvelope)
+    for (const auto& point : adjustedEnvelope)
     {
-        double alpha = point.value; // normalized [0–1] envelope
+        double alpha = point.value;
         double dynamicVal = startVal + alpha * (endVal - startVal);
-        double norm = (dynamicVal - minVal) / (maxVal - minVal);
-        int ccVal = static_cast<int>(norm * 127.0);
+        dynamicVal = std::clamp(dynamicVal, static_cast<double>(minVal), static_cast<double>(maxVal));
+
+        ExpressionMark dynMark = static_cast<ExpressionMark>(static_cast<int>(std::round(dynamicVal)));
+        int ccVal = expressionMarkToCC(dynMark, minDynamicInScore, maxDynamicInScore);
+
         if (ccVal == lastCC)
         {
             continue;
@@ -96,4 +95,4 @@ if (startVal == endVal)
 }
 
 //-------------------------------------------------------------------------------------------
-}// namespace dynamizer
+} // namespace dynamizer
