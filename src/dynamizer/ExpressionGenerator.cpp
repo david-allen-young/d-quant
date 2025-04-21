@@ -40,8 +40,11 @@ if (startVal == endVal)
             // Normalize to [0.0, 1.0]
             double normalized = (point.value - minEnv) / range;
 
-            // Use normalized to interpolate around startVal
-            double dynamicVal = static_cast<double>(startVal) + (normalized - 0.5) * (maxVal - minVal) * 0.5;
+            //// Use normalized to interpolate around startVal
+            //double dynamicVal = static_cast<double>(startVal) + (normalized - 0.5) * (maxVal - minVal) * 0.5;
+
+            double fluctuationRange = (maxVal - minVal) * 0.3;
+            double dynamicVal = static_cast<double>(startVal) + (normalized - 0.5) * fluctuationRange;
 
             // Clamp to dynamic range
             dynamicVal = std::clamp(dynamicVal, static_cast<double>(minVal), static_cast<double>(maxVal));
