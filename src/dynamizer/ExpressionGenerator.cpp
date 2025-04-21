@@ -21,28 +21,40 @@ std::vector<std::pair<double, int>> generateBreathCCFromEnvelope(
     int endVal = static_cast<int>(endDynamic);
 
     if (startVal == endVal)
+    {
+        // Calculate center of the envelope
+        double envMean = 0.0;
+        for (const auto& pt : envelope)
+            envMean += pt.value;
+        envMean /= static_cast<double>(envelope.size());
+
+        // Safety check to avoid divide by zero
+        double epsilon = 1e-6;
+        double scale = (maxVal - minVal) > epsilon ? 1.0 / (envMean + epsilon) : 1.0;
+
+        for (const auto& point : envelope)
         {
-            // Apply the envelope as a fluctuation pattern around the constant level
-            for (const auto& point : envelope)
-            {
-                // Clamp fluctuation to a safe range (e.g., +/- 0.4)
-                double delta = std::clamp(point.value, -0.4, 0.4);
+            // Scale and offset to match desired center
+            double adjusted = point.value * scale;
 
-                // Apply delta to center point
-                double dynamicVal = startVal + delta * (maxVal - minVal) * 0.5;
+            // Clamp to [0.0, 1.0]
+            adjusted = std::clamp(adjusted, 0.0, 1.0);
 
-                // Clamp to score range and scale to 0–127
-                dynamicVal = std::clamp(dynamicVal, static_cast<double>(minVal), static_cast<double>(maxVal));
-                double norm = (dynamicVal - minVal) / (maxVal - minVal);
-                int ccVal = static_cast<int>(norm * 127.0);
+            // Map to dynamic range
+            double dynamicVal = minVal + adjusted * (maxVal - minVal);
 
-                double positionInBeats = point.time * durationInBeats;
-                result.emplace_back(positionInBeats, ccVal);
-            }
+            // Clamp again to make sure we stay inside bounds
+            dynamicVal = std::clamp(dynamicVal, static_cast<double>(minVal), static_cast<double>(maxVal));
 
-            return result;
+            double norm = (dynamicVal - minVal) / (maxVal - minVal);
+            int ccVal = static_cast<int>(norm * 127.0);
+
+            double positionInBeats = point.time * durationInBeats;
+            result.emplace_back(positionInBeats, ccVal);
         }
 
+        return result;
+    }
 
     std::vector<Point> adjustedEnvelope = envelope;
     if (startVal > endVal)
