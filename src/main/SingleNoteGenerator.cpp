@@ -31,17 +31,6 @@ void generate_single_note_midi(const MidiArgs& args)
     std::vector<std::string> envelopePaths;
     std::vector<std::vector<Point>> morphedEnvelopes;
 
-    //const std::string morphResultsDir = "C:/GitHub/d-quant/assets/morph_csv";
-   // const std::string& morphResultsDir = args.morph_csv_dir;
-
-    //std::string subdir;
-    //if (args.dyn_start < args.dyn_end)
-    //    subdir = "crescendo";
-    //else if (args.dyn_start > args.dyn_end)
-    //    subdir = "diminuendo";
-    //else
-    //    subdir = "stable";
-
     ExpressionMark dynStart = markFromStr(args.dyn_start);
     ExpressionMark dynEnd = markFromStr(args.dyn_end);
 
@@ -60,7 +49,7 @@ void generate_single_note_midi(const MidiArgs& args)
     std::filesystem::path morphDir = (std::filesystem::path(args.morph_csv_dir) / subdir / "generated").lexically_normal();
     std::cout << "Selected morph directory: " << morphDir << std::endl;
 
-    for (const auto& entry : std::filesystem::directory_iterator(/*morphResultsDir*/morphDir))
+    for (const auto& entry : std::filesystem::directory_iterator(morphDir))
     {
         if (entry.path().extension() == ".csv")
         {
@@ -75,7 +64,7 @@ void generate_single_note_midi(const MidiArgs& args)
     }
     if (morphedEnvelopes.empty())
     {
-        throw std::runtime_error("No morph envelopes found in: " + /*morphResultsDir*/morphDir.string());
+        throw std::runtime_error("No morph envelopes found in: " + morphDir.string());
     }
 
     auto dynPreset = getRangeForPreset(presetFromStr(args.dyn_preset));
