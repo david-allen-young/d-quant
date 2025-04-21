@@ -1,4 +1,5 @@
 #include "ExpressionGenerator.h"
+#include <algorithm>
 
 namespace dynamizer
 {
@@ -20,12 +21,28 @@ std::vector<std::pair<double, int>> generateBreathCCFromEnvelope(
     int endVal = static_cast<int>(endDynamic);
 
     if (startVal == endVal)
-    {
-        // Single dynamic level: one CC event at the start
-        int ccVal = expressionMarkToCC(startDynamic, minDynamicInScore, maxDynamicInScore);
-        result.emplace_back(0.0, ccVal);
-        return result;
-    }
+        {
+            // Apply the envelope as a fluctuation pattern around the constant level
+            for (const auto& point : envelope)
+            {
+                // Clamp fluctuation to a safe range (e.g., +/- 0.4)
+                double delta = std::clamp(point.value, -0.4, 0.4);
+
+                // Apply delta to center point
+                double dynamicVal = startVal + delta * (maxVal - minVal) * 0.5;
+
+                // Clamp to score range and scale to 0–127
+                dynamicVal = std::clamp(dynamicVal, static_cast<double>(minVal), static_cast<double>(maxVal));
+                double norm = (dynamicVal - minVal) / (maxVal - minVal);
+                int ccVal = static_cast<int>(norm * 127.0);
+
+                double positionInBeats = point.time * durationInBeats;
+                result.emplace_back(positionInBeats, ccVal);
+            }
+
+            return result;
+        }
+
 
     std::vector<Point> adjustedEnvelope = envelope;
     if (startVal > endVal)
