@@ -35,6 +35,10 @@ std::vector<std::pair<double, int>> generateBreathCCFromEnvelope(
             dynamicVal = std::clamp(dynamicVal, 0.0, 1.0);
             int ccVal = static_cast<int>(dynamicVal * 126.0);
             double positionInBeats = pt.time * durationInBeats;
+            if (!result.empty() && result.back().second == ccVal)
+            {
+                continue;
+            }
             result.emplace_back(positionInBeats, ccVal);
         }
         return result;
