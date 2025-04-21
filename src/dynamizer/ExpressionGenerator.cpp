@@ -1,5 +1,6 @@
 #include "ExpressionGenerator.h"
 #include "ExpressionMarks.h" // for expressionMarkToCC
+#include "EnvelopeUtils.h"
 #include <algorithm>
 #include <cmath>
 
@@ -17,42 +18,25 @@ std::vector<std::pair<double, int>> generateBreathCCFromEnvelope(
 {
     std::vector<std::pair<double, int>> result;
 
-    int minVal = static_cast<int>(minDynamicInScore);
+    int minVal = static_cast<int>(minDynamicInScore) - 1;
     int maxVal = static_cast<int>(maxDynamicInScore);
     int startVal = static_cast<int>(startDynamic);
     int endVal = static_cast<int>(endDynamic);
 
     if (startVal == endVal)
     {
-        // Find min/max of envelope values
-        double minEnv = envelope.front().value;
-        double maxEnv = envelope.front().value;
+        double rangeMark = static_cast<double>(maxVal - minVal) * 1.01;
+        double normalizedMark = (startVal - minVal) / rangeMark;
         for (const auto& pt : envelope)
         {
-            minEnv = std::min(minEnv, pt.value);
-            maxEnv = std::max(maxEnv, pt.value);
-        }
-
-        double range = maxEnv - minEnv;
-        if (range < 1e-5)
-            range = 1.0; // fallback to avoid divide-by-zero
-
-        for (const auto& point : envelope)
-        {
-            // Normalize to [0.0, 1.0]
-            double normalized = (point.value - minEnv) / range;
-
-            double fluctuationRange = (maxVal - minVal) * 0.3;
-            double dynamicVal = static_cast<double>(startVal) + (normalized - 0.5) * fluctuationRange;
-            dynamicVal = std::clamp(dynamicVal, static_cast<double>(minVal), static_cast<double>(maxVal));
-
-            double norm = (dynamicVal - minVal) / (maxVal - minVal);
-            int ccVal = static_cast<int>(norm * 127.0); // KEEP THIS
-
-            double positionInBeats = point.time * durationInBeats;
+            double envelopeCenter = computeEnvelopeMean(envelope);
+            double delta = pt.value - envelopeCenter;
+            double dynamicVal = normalizedMark + delta;
+            dynamicVal = std::clamp(dynamicVal, 0.0, 1.0);
+            int ccVal = static_cast<int>(dynamicVal * 126.0);
+            double positionInBeats = pt.time * durationInBeats;
             result.emplace_back(positionInBeats, ccVal);
         }
-
         return result;
     }
 
