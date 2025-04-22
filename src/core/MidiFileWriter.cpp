@@ -49,34 +49,33 @@ void MidiFileWriter::writeSingleNoteFile(const NoteInterface& note,
 
     const double noteStart = noteOnBeat;
 
-    auto emitCC = [&](uint32_t tick, int value)
-    {
-        writeVariableLengthQuantity(trackData, tick - lastTick);
-        trackData.push_back(0xB0); // Control Change, channel 0
-        trackData.push_back(static_cast<uint8_t>(static_cast<int>(controllerCC)));
-        trackData.push_back(static_cast<uint8_t>(value));
-    };
+    //auto emitCC = [&](uint32_t tick, int value)
+    //{
+    //    //writeVariableLengthQuantity(trackData, tick - lastTick);
+    //    trackData.push_back(0xB0); // Control Change, channel 0
+    //    trackData.push_back(static_cast<uint8_t>(static_cast<int>(controllerCC)));
+    //    trackData.push_back(static_cast<uint8_t>(value));
+    //};
 
-auto emitPitchBend = [&](uint32_t tick, int pitchWheelValue)
-    {
-        int unsignedPitchWheel = pitchWheelValue + 8192;
-
-        uint8_t lsb = static_cast<uint8_t>(unsignedPitchWheel & 0x7F);
-        uint8_t msb = static_cast<uint8_t>((unsignedPitchWheel >> 7) & 0x7F);
-
-        std::cout << "[DEBUG] emitPitchBend:"
-                  << " tick=" << tick
-                  << ", signed=" << pitchWheelValue
-                  << ", unsigned=" << unsignedPitchWheel
-                  << ", lsb=" << static_cast<int>(lsb)
-                  << ", msb=" << static_cast<int>(msb)
-                  << std::endl;
-
-        writeVariableLengthQuantity(trackData, tick - lastTick);
-        trackData.push_back(0xE0); // Pitch Bend, channel 0
-        trackData.push_back(lsb);
-        trackData.push_back(msb);
-    };
+//auto emitPitchBend = [&](uint32_t tick, int pitchWheelValue)
+//    {
+//        int unsignedPitchWheel = pitchWheelValue + 8192;
+//
+//        uint8_t lsb = static_cast<uint8_t>(unsignedPitchWheel & 0x7F);
+//        uint8_t msb = static_cast<uint8_t>((unsignedPitchWheel >> 7) & 0x7F);
+//
+//        std::cout << "[DEBUG] emitPitchBend:"
+//                  << " tick=" << tick
+//                  << ", signed=" << pitchWheelValue
+//                  << ", unsigned=" << unsignedPitchWheel
+//                  << ", lsb=" << static_cast<int>(lsb)
+//                  << ", msb=" << static_cast<int>(msb)
+//                  << std::endl;
+//
+//        trackData.push_back(0xE0); // Pitch Bend, channel 0
+//        trackData.push_back(lsb);
+//        trackData.push_back(msb);
+//    };
 
     //auto findCorrespondingIntonation = [&](double ccBeat)
     //{
@@ -122,7 +121,12 @@ auto emitPitchBend = [&](uint32_t tick, int pitchWheelValue)
         if (tick >= beatsToTicks(noteStart))
             continue; // skip post-note CC2s for now
 
-        emitCC(tick, static_cast<int>(ccValueNorm * 127.0));
+        writeVariableLengthQuantity(trackData, tick - lastTick);
+        //emitCC(tick, static_cast<int>(ccValueNorm * 127.0));
+        auto value = static_cast<int>(ccValueNorm * 127.0);
+        trackData.push_back(0xB0); // Control Change, channel 0
+        trackData.push_back(static_cast<uint8_t>(static_cast<int>(controllerCC)));
+        trackData.push_back(static_cast<uint8_t>(value));
 
         
         //std::cout << "[DEBUG] Intonation Vector:\n";
@@ -131,11 +135,29 @@ auto emitPitchBend = [&](uint32_t tick, int pitchWheelValue)
         //    std::cout << "  beat " << beat << " -> PB " << static_cast<int>(pitch) << std::endl;
         //}
 
-        tick += 1;
+        //tick += 1;
         auto pbwValueNorm = findClosestIntonation(beat);
-        emitPitchBend(tick, static_cast<int>(pbwValueNorm * 8192.0));
+        writeVariableLengthQuantity(trackData, 1);
+        // emitPitchBend(tick, static_cast<int>(pbwValueNorm * 8192.0));
+        auto pitchWheelValue = static_cast<int>(pbwValueNorm * 8192.0);
+        int unsignedPitchWheel = pitchWheelValue + 8192;
 
-        lastTick = tick;
+        uint8_t lsb = static_cast<uint8_t>(unsignedPitchWheel & 0x7F);
+        uint8_t msb = static_cast<uint8_t>((unsignedPitchWheel >> 7) & 0x7F);
+        
+                std::cout << "[DEBUG] emitPitchBend:"
+                          << " tick=" << tick
+                          << ", signed=" << pitchWheelValue
+                          << ", unsigned=" << unsignedPitchWheel
+                          << ", lsb=" << static_cast<int>(lsb)
+                          << ", msb=" << static_cast<int>(msb)
+                          << std::endl;
+        
+        trackData.push_back(0xE0); // Pitch Bend, channel 0
+        trackData.push_back(lsb);
+        trackData.push_back(msb);
+
+        lastTick = tick + 1;
     }
 
     // === [4] Note On
@@ -157,7 +179,12 @@ auto emitPitchBend = [&](uint32_t tick, int pitchWheelValue)
         if (tick < beatsToTicks(noteStart))
             continue; // already written
 
-        emitCC(tick, static_cast<int>(ccValueNorm * 127.0));
+        writeVariableLengthQuantity(trackData, tick - lastTick);
+        // emitCC(tick, static_cast<int>(ccValueNorm * 127.0));
+        auto value = static_cast<int>(ccValueNorm * 127.0);
+        trackData.push_back(0xB0); // Control Change, channel 0
+        trackData.push_back(static_cast<uint8_t>(static_cast<int>(controllerCC)));
+        trackData.push_back(static_cast<uint8_t>(value));
 
         //std::cout << "[DEBUG] Intonation Vector:\n";
         //for (const auto& [beat, pitch] : intonation)
@@ -165,11 +192,29 @@ auto emitPitchBend = [&](uint32_t tick, int pitchWheelValue)
         //    std::cout << "  beat " << beat << " -> PB " << static_cast<int>(pitch) << std::endl;
         //}
 
-        tick += 1;
+        // tick += 1;
         auto pbwValueNorm = findClosestIntonation(beat);
-        emitPitchBend(tick, static_cast<int>(pbwValueNorm * 8192.0));
+        writeVariableLengthQuantity(trackData, 1);
+        // emitPitchBend(tick, static_cast<int>(pbwValueNorm * 8192.0));
+        auto pitchWheelValue = static_cast<int>(pbwValueNorm * 8192.0);
+        int unsignedPitchWheel = pitchWheelValue + 8192;
 
-        lastTick = tick;
+        uint8_t lsb = static_cast<uint8_t>(unsignedPitchWheel & 0x7F);
+        uint8_t msb = static_cast<uint8_t>((unsignedPitchWheel >> 7) & 0x7F);
+
+        std::cout << "[DEBUG] emitPitchBend:"
+                  << " tick=" << tick
+                  << ", signed=" << pitchWheelValue
+                  << ", unsigned=" << unsignedPitchWheel
+                  << ", lsb=" << static_cast<int>(lsb)
+                  << ", msb=" << static_cast<int>(msb)
+                  << std::endl;
+
+        trackData.push_back(0xE0); // Pitch Bend, channel 0
+        trackData.push_back(lsb);
+        trackData.push_back(msb);
+
+        lastTick = tick + 1;
     }
 
     double noteEnd = noteStart + note.getDurationInBeats();
@@ -182,8 +227,8 @@ auto emitPitchBend = [&](uint32_t tick, int pitchWheelValue)
         trackData.push_back(static_cast<uint8_t>(note.getKeyNumber()));
         trackData.push_back(0); // velocity 0
 
-        tick += 24;
-        emitPitchBend(tick, 0);
+        //tick += 24;
+        //emitPitchBend(tick, 0);
 
         lastTick = tick;
     }
