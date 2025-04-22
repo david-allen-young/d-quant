@@ -229,8 +229,16 @@ void MidiFileWriter::writeSingleNoteFile(const NoteInterface& note,
 
         //tick += 24;
         //emitPitchBend(tick, 0);
+        writeVariableLengthQuantity(trackData, 24);
+        auto pitchWheelValue = 0;
+        int unsignedPitchWheel = pitchWheelValue + 8192;
+        uint8_t lsb = static_cast<uint8_t>(unsignedPitchWheel & 0x7F);
+        uint8_t msb = static_cast<uint8_t>((unsignedPitchWheel >> 7) & 0x7F);
+        trackData.push_back(0xE0); // Pitch Bend, channel 0
+        trackData.push_back(lsb);
+        trackData.push_back(msb);
 
-        lastTick = tick;
+        lastTick = tick + 24;
     }
 
     // End of Track Meta Event
