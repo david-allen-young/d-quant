@@ -38,6 +38,7 @@ void MidiFileWriter::writeSingleNoteFile(const NoteInterface& note,
     // === [2] Expression Preroll Handling ===
     // We'll shift expression points earlier so that the *last* preroll CC lands at beat 1.0
     const auto& expression = note.getExpression();
+    const auto& intonation = note.getIntonation();
     size_t prerollCCCount = std::min<size_t>(2, expression.size());
 
     double prerollBeats = 0.0;
@@ -48,13 +49,68 @@ void MidiFileWriter::writeSingleNoteFile(const NoteInterface& note,
 
     const double noteStart = noteOnBeat;
 
-    auto emitCC = [&](uint32_t tick, int value)
+    //auto emitCC = [&](uint32_t tick, int value)
+    //{
+    //    //writeVariableLengthQuantity(trackData, tick - lastTick);
+    //    trackData.push_back(0xB0); // Control Change, channel 0
+    //    trackData.push_back(static_cast<uint8_t>(static_cast<int>(controllerCC)));
+    //    trackData.push_back(static_cast<uint8_t>(value));
+    //};
+
+//auto emitPitchBend = [&](uint32_t tick, int pitchWheelValue)
+//    {
+//        int unsignedPitchWheel = pitchWheelValue + 8192;
+//
+//        uint8_t lsb = static_cast<uint8_t>(unsignedPitchWheel & 0x7F);
+//        uint8_t msb = static_cast<uint8_t>((unsignedPitchWheel >> 7) & 0x7F);
+//
+//        std::cout << "[DEBUG] emitPitchBend:"
+//                  << " tick=" << tick
+//                  << ", signed=" << pitchWheelValue
+//                  << ", unsigned=" << unsignedPitchWheel
+//                  << ", lsb=" << static_cast<int>(lsb)
+//                  << ", msb=" << static_cast<int>(msb)
+//                  << std::endl;
+//
+//        trackData.push_back(0xE0); // Pitch Bend, channel 0
+//        trackData.push_back(lsb);
+//        trackData.push_back(msb);
+//    };
+
+    //auto findCorrespondingIntonation = [&](double ccBeat)
+    //{
+    //    for (const auto& [pbwBeat, pbwValueAbs] : intonation)
+    //    {
+    //        auto dist = std::abs(pbwBeat - ccBeat);
+    //        if (dist < 0.01)
+    //        {
+    //            double pbwValueNorm = pbwValueAbs / 8192.0;
+    //            return pbwValueNorm;
+    //        }
+    //    }
+    //    return 0.0;
+    //};
+
+    auto findClosestIntonation = [&](double ccBeat) -> double
     {
-        writeVariableLengthQuantity(trackData, tick - lastTick);
-        trackData.push_back(0xB0); // Control Change, channel 0
-        trackData.push_back(static_cast<uint8_t>(static_cast<int>(controllerCC)));
-        trackData.push_back(static_cast<uint8_t>(value));
+        if (intonation.empty())
+            return 0.0;
+
+        double minDist = std::numeric_limits<double>::max();
+        double bestValue = 0.0;
+
+        for (const auto& [pbwBeat, pbwValueNorm] : intonation)
+        {
+            double dist = std::abs(pbwBeat - ccBeat);
+            if (dist < minDist)
+            {
+                minDist = dist;
+                bestValue = pbwValueNorm;
+            }
+        }
+        return bestValue;
     };
+
 
     // === [3] Shifted Expression (CC2) - PRE-NOTE
     for (const auto& [beat, ccValueNorm] : expression)
@@ -65,8 +121,43 @@ void MidiFileWriter::writeSingleNoteFile(const NoteInterface& note,
         if (tick >= beatsToTicks(noteStart))
             continue; // skip post-note CC2s for now
 
-        emitCC(tick, static_cast<int>(ccValueNorm * 127.0));
-        lastTick = tick;
+        writeVariableLengthQuantity(trackData, tick - lastTick);
+        //emitCC(tick, static_cast<int>(ccValueNorm * 127.0));
+        auto value = static_cast<int>(ccValueNorm * 127.0);
+        trackData.push_back(0xB0); // Control Change, channel 0
+        trackData.push_back(static_cast<uint8_t>(static_cast<int>(controllerCC)));
+        trackData.push_back(static_cast<uint8_t>(value));
+
+        
+        //std::cout << "[DEBUG] Intonation Vector:\n";
+        //for (const auto& [beat, pitch] : intonation)
+        //{
+        //    std::cout << "  beat " << beat << " -> PB " << static_cast<int>(pitch) << std::endl;
+        //}
+
+        //tick += 1;
+        auto pbwValueNorm = findClosestIntonation(beat);
+        writeVariableLengthQuantity(trackData, 1);
+        // emitPitchBend(tick, static_cast<int>(pbwValueNorm * 8192.0));
+        auto pitchWheelValue = static_cast<int>(pbwValueNorm * 8192.0);
+        int unsignedPitchWheel = pitchWheelValue + 8192;
+
+        uint8_t lsb = static_cast<uint8_t>(unsignedPitchWheel & 0x7F);
+        uint8_t msb = static_cast<uint8_t>((unsignedPitchWheel >> 7) & 0x7F);
+        
+                std::cout << "[DEBUG] emitPitchBend:"
+                          << " tick=" << tick
+                          << ", signed=" << pitchWheelValue
+                          << ", unsigned=" << unsignedPitchWheel
+                          << ", lsb=" << static_cast<int>(lsb)
+                          << ", msb=" << static_cast<int>(msb)
+                          << std::endl;
+        
+        trackData.push_back(0xE0); // Pitch Bend, channel 0
+        trackData.push_back(lsb);
+        trackData.push_back(msb);
+
+        lastTick = tick + 1;
     }
 
     // === [4] Note On
@@ -88,8 +179,42 @@ void MidiFileWriter::writeSingleNoteFile(const NoteInterface& note,
         if (tick < beatsToTicks(noteStart))
             continue; // already written
 
-        emitCC(tick, static_cast<int>(ccValueNorm * 127.0));
-        lastTick = tick;
+        writeVariableLengthQuantity(trackData, tick - lastTick);
+        // emitCC(tick, static_cast<int>(ccValueNorm * 127.0));
+        auto value = static_cast<int>(ccValueNorm * 127.0);
+        trackData.push_back(0xB0); // Control Change, channel 0
+        trackData.push_back(static_cast<uint8_t>(static_cast<int>(controllerCC)));
+        trackData.push_back(static_cast<uint8_t>(value));
+
+        //std::cout << "[DEBUG] Intonation Vector:\n";
+        //for (const auto& [beat, pitch] : intonation)
+        //{
+        //    std::cout << "  beat " << beat << " -> PB " << static_cast<int>(pitch) << std::endl;
+        //}
+
+        // tick += 1;
+        auto pbwValueNorm = findClosestIntonation(beat);
+        writeVariableLengthQuantity(trackData, 1);
+        // emitPitchBend(tick, static_cast<int>(pbwValueNorm * 8192.0));
+        auto pitchWheelValue = static_cast<int>(pbwValueNorm * 8192.0);
+        int unsignedPitchWheel = pitchWheelValue + 8192;
+
+        uint8_t lsb = static_cast<uint8_t>(unsignedPitchWheel & 0x7F);
+        uint8_t msb = static_cast<uint8_t>((unsignedPitchWheel >> 7) & 0x7F);
+
+        std::cout << "[DEBUG] emitPitchBend:"
+                  << " tick=" << tick
+                  << ", signed=" << pitchWheelValue
+                  << ", unsigned=" << unsignedPitchWheel
+                  << ", lsb=" << static_cast<int>(lsb)
+                  << ", msb=" << static_cast<int>(msb)
+                  << std::endl;
+
+        trackData.push_back(0xE0); // Pitch Bend, channel 0
+        trackData.push_back(lsb);
+        trackData.push_back(msb);
+
+        lastTick = tick + 1;
     }
 
     double noteEnd = noteStart + note.getDurationInBeats();
@@ -101,6 +226,10 @@ void MidiFileWriter::writeSingleNoteFile(const NoteInterface& note,
         trackData.push_back(0x80); // Note Off
         trackData.push_back(static_cast<uint8_t>(note.getKeyNumber()));
         trackData.push_back(0); // velocity 0
+
+        //tick += 24;
+        //emitPitchBend(tick, 0);
+
         lastTick = tick;
     }
 

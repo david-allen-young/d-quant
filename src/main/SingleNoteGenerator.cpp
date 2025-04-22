@@ -1,7 +1,8 @@
 #include "SingleNoteGenerator.h"
 #include "ExpressionGenerator.h" // for generateBreathCCFromEnvelope
 #include "rhythmizer.h"
-//#include "intonizer.h"
+#include "intonizer.h"
+#include "IntonationGenerator.h"
 #include "RandomCsvFileSelector.h"
 #include "MidiArgs.h"
 #include "MidiFileWriter.h"
@@ -113,8 +114,20 @@ void generate_single_note_midi(const MidiArgs& args)
     builder.setVelocity(breathCC[velocityIdx].second);
 
     // === [4] Intonizer stub ===
-    // intonizer::applyIntonation(builder);
-    // builder.addIntonation(...); <- Not yet implemented
+    double centsPerDeltaCC = 1.2;
+    double compensation = (dynStart != dynEnd) ? 0.3 : 1.0;
+    auto pitchEnvelope = intonizer::applyPitchEnvelope(breathCC, dynStart == dynEnd, centsPerDeltaCC, compensation);
+
+    std::cout << "[DEBUG] Pitch Bend mapping:\n";
+    for (const auto& [pos, pitch] : pitchEnvelope)
+    {
+        std::cout << "  beat " << pos << " -> PB " << static_cast<int>(pitch) << std::endl;
+    }
+
+    for (auto& pt : pitchEnvelope)
+    {
+        builder.addIntonation(pt.time, pt.value);
+    }
 
     // === [5] Finalize note and write to MIDI ===
     auto note = builder.build();
