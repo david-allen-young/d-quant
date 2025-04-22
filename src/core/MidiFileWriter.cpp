@@ -78,19 +78,19 @@ auto emitPitchBend = [&](uint32_t tick, int pitchWheelValue)
         trackData.push_back(msb);
     };
 
-    auto findCorrespondingIntonation = [&](double ccBeat)
-    {
-        for (const auto& [pbwBeat, pbwValueAbs] : intonation)
-        {
-            auto dist = std::abs(pbwBeat - ccBeat);
-            if (dist < 0.01)
-            {
-                double pbwValueNorm = pbwValueAbs / 8192.0;
-                return pbwValueNorm;
-            }
-        }
-        return 0.0;
-    };
+    //auto findCorrespondingIntonation = [&](double ccBeat)
+    //{
+    //    for (const auto& [pbwBeat, pbwValueAbs] : intonation)
+    //    {
+    //        auto dist = std::abs(pbwBeat - ccBeat);
+    //        if (dist < 0.01)
+    //        {
+    //            double pbwValueNorm = pbwValueAbs / 8192.0;
+    //            return pbwValueNorm;
+    //        }
+    //    }
+    //    return 0.0;
+    //};
 
     auto findClosestIntonation = [&](double ccBeat) -> double
     {
@@ -100,13 +100,13 @@ auto emitPitchBend = [&](uint32_t tick, int pitchWheelValue)
         double minDist = std::numeric_limits<double>::max();
         double bestValue = 0.0;
 
-        for (const auto& [pbwBeat, pbwValueAbs] : intonation)
+        for (const auto& [pbwBeat, pbwValueNorm] : intonation)
         {
             double dist = std::abs(pbwBeat - ccBeat);
             if (dist < minDist)
             {
                 minDist = dist;
-                bestValue = static_cast<double>(pbwValueAbs) / 8192.0;
+                bestValue = pbwValueNorm;
             }
         }
         return bestValue;
