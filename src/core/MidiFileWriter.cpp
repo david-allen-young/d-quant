@@ -92,6 +92,27 @@ auto emitPitchBend = [&](uint32_t tick, int pitchWheelValue)
         return 0.0;
     };
 
+    auto findClosestIntonation = [&](double ccBeat) -> double
+    {
+        if (intonation.empty())
+            return 0.0;
+
+        double minDist = std::numeric_limits<double>::max();
+        double bestValue = 0.0;
+
+        for (const auto& [pbwBeat, pbwValueAbs] : intonation)
+        {
+            double dist = std::abs(pbwBeat - ccBeat);
+            if (dist < minDist)
+            {
+                minDist = dist;
+                bestValue = static_cast<double>(pbwValueAbs) / 8192.0;
+            }
+        }
+        return bestValue;
+    };
+
+
     // === [3] Shifted Expression (CC2) - PRE-NOTE
     for (const auto& [beat, ccValueNorm] : expression)
     {
@@ -103,8 +124,15 @@ auto emitPitchBend = [&](uint32_t tick, int pitchWheelValue)
 
         emitCC(tick, static_cast<int>(ccValueNorm * 127.0));
 
+        
+        //std::cout << "[DEBUG] Intonation Vector:\n";
+        //for (const auto& [beat, pitch] : intonation)
+        //{
+        //    std::cout << "  beat " << beat << " -> PB " << static_cast<int>(pitch) << std::endl;
+        //}
+
         tick += 1;
-        auto pbwValueNorm = findCorrespondingIntonation(beat);
+        auto pbwValueNorm = findClosestIntonation(beat);
         emitPitchBend(tick, static_cast<int>(pbwValueNorm * 8192.0));
 
         lastTick = tick;
@@ -131,8 +159,14 @@ auto emitPitchBend = [&](uint32_t tick, int pitchWheelValue)
 
         emitCC(tick, static_cast<int>(ccValueNorm * 127.0));
 
+        //std::cout << "[DEBUG] Intonation Vector:\n";
+        //for (const auto& [beat, pitch] : intonation)
+        //{
+        //    std::cout << "  beat " << beat << " -> PB " << static_cast<int>(pitch) << std::endl;
+        //}
+
         tick += 1;
-        auto pbwValueNorm = findCorrespondingIntonation(beat);
+        auto pbwValueNorm = findClosestIntonation(beat);
         emitPitchBend(tick, static_cast<int>(pbwValueNorm * 8192.0));
 
         lastTick = tick;
