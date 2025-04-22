@@ -53,7 +53,7 @@ std::vector<Point> applyPitchEnvelope(
     result.reserve(breathEnvelope.size());
     std::cout << "breathCC.size()==" << breathEnvelope.size() << std::endl;
 
-    if (isStableDynamics)
+    if (/*isStableDynamics*/true)
     {
         //double envelopeCenter = computeEnvelopeMean(breathEnvelope);
 
@@ -80,6 +80,7 @@ std::vector<Point> applyPitchEnvelope(
         for (const auto& pt : breathEnvelope)
         {
             int delta = pt.second - breathCenter;
+            centsPerDeltaCC *= compensationFactor;
             double cents = static_cast<double>(delta) * centsPerDeltaCC;
             cents = std::clamp(cents, -50.0, 50.0);
             //double value = (unit == OutputUnit::PitchWheelUnits)

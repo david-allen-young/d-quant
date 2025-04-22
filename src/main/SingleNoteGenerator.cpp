@@ -115,7 +115,8 @@ void generate_single_note_midi(const MidiArgs& args)
 
     // === [4] Intonizer stub ===
     double centsPerDeltaCC = 1.2;
-    double compensation = (dynStart != dynEnd) ? 0.3 : 1.0;
+    double compensation = (dynStart != dynEnd) ? 0.98 : 1.0;
+    //double compensation = 1.0;
     auto pitchEnvelope = intonizer::applyPitchEnvelope(breathCC, dynStart == dynEnd, centsPerDeltaCC, compensation);
 
     std::cout << "[DEBUG] Pitch Bend mapping:\n";
