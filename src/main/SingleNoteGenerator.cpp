@@ -2,6 +2,7 @@
 #include "ExpressionGenerator.h" // for generateBreathCCFromEnvelope
 #include "rhythmizer.h"
 //#include "intonizer.h"
+#include "RandomCsvFileSelector.h"
 #include "MidiArgs.h"
 #include "MidiFileWriter.h"
 #include "NoteBuilder.h"
@@ -28,19 +29,8 @@ void generate_single_note_midi(const MidiArgs& args)
     rhythmizer::applyTiming(builder, nominalPosition, nominalDuration, args.articulation_preset);
 
     // === [3] Dynamizer: Generate envelope -> CC ===
-    std::vector<std::string> envelopePaths;
-    std::vector<std::vector<Point>> morphedEnvelopes;
-
-    //const std::string morphResultsDir = "C:/GitHub/d-quant/assets/morph_csv";
-   // const std::string& morphResultsDir = args.morph_csv_dir;
-
-    //std::string subdir;
-    //if (args.dyn_start < args.dyn_end)
-    //    subdir = "crescendo";
-    //else if (args.dyn_start > args.dyn_end)
-    //    subdir = "diminuendo";
-    //else
-    //    subdir = "stable";
+    //std::vector<std::string> envelopePaths;
+    //std::vector<std::vector<Point>> morphedEnvelopes;
 
     ExpressionMark dynStart = markFromStr(args.dyn_start);
     ExpressionMark dynEnd = markFromStr(args.dyn_end);
@@ -60,33 +50,44 @@ void generate_single_note_midi(const MidiArgs& args)
     std::filesystem::path morphDir = (std::filesystem::path(args.morph_csv_dir) / subdir / "generated").lexically_normal();
     std::cout << "Selected morph directory: " << morphDir << std::endl;
 
-    for (const auto& entry : std::filesystem::directory_iterator(/*morphResultsDir*/morphDir))
-    {
-        if (entry.path().extension() == ".csv")
-        {
-            std::vector<Point> points;
-            readCSV(entry.path().string(), points);
-            if (!points.empty())
-            {
-                morphedEnvelopes.push_back(points);
-                envelopePaths.push_back(entry.path().string());
-            }
-        }
-    }
-    if (morphedEnvelopes.empty())
-    {
-        throw std::runtime_error("No morph envelopes found in: " + /*morphResultsDir*/morphDir.string());
-    }
+    auto envelopePath = selectRandomCsvInDir(morphDir.string());
+    std::cout << "Using envelope: " << envelopePath << std::endl;
+    std::vector<Point> points;
+    readCSV(envelopePath, points);
+    auto envelope = points;
+
+    //for (const auto& entry : std::filesystem::directory_iterator(morphDir))
+    //{
+    //    if (entry.path().extension() == ".csv")
+    //    {
+    //        std::vector<Point> points;
+    //        readCSV(entry.path().string(), points);
+    //        if (!points.empty())
+    //        {
+    //            morphedEnvelopes.push_back(points);
+    //            envelopePaths.push_back(entry.path().string());
+    //        }
+    //    }
+    //}
+    //if (morphedEnvelopes.empty())
+    //{
+    //    throw std::runtime_error("No morph envelopes found in: " + morphDir.string());
+    //}
+
+    //std::cout << "[DEBUG] Found " << envelopePaths.size() << " morph files:\n";
+    //for (const auto& p : envelopePaths)
+    //    std::cout << "  " << p << std::endl;
+
 
     auto dynPreset = getRangeForPreset(presetFromStr(args.dyn_preset));
 
-    std::mt19937 rng(std::random_device{}());
-    std::uniform_int_distribution<> indexDist(0, (int)morphedEnvelopes.size() - 1);
-    int rIdx = indexDist(rng);
+    //std::mt19937 rng(std::random_device{}());
+    //std::uniform_int_distribution<> indexDist(0, (int)morphedEnvelopes.size() - 1);
+    //int rIdx = indexDist(rng);
 
-    auto envelope = morphedEnvelopes[rIdx];
-    // After selecting random envelope:
-    std::cout << "Using envelope: " << envelopePaths[rIdx] << std::endl;
+    //auto envelope = morphedEnvelopes[rIdx];
+    //// After selecting random envelope:
+    //std::cout << "Using envelope: " << envelopePaths[rIdx] << std::endl;
 
     auto breathCC = generateBreathCCFromEnvelope(envelope,
                                                  builder.getData().durationInBeats,
