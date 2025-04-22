@@ -62,6 +62,9 @@ void MidiFileWriter::writeSingleNoteFile(const NoteInterface& note,
         writeVariableLengthQuantity(trackData, tick - lastTick);
         trackData.push_back(0xE0); // Pitch Bend, channel 0
 
+        // Convert signed to unsigned for MIDI spec
+        int unsignedPitchWheel = pitchWheelValue + 8192;
+
         // MIDI Pitch Bend is 14-bit value, split into LSB (7 bits) and MSB (7 bits)
         uint8_t lsb = static_cast<uint8_t>(pitchWheelValue & 0x7F);
         uint8_t msb = static_cast<uint8_t>((pitchWheelValue >> 7) & 0x7F);
