@@ -1,4 +1,8 @@
 #include "ExpressionGenerator.h"
+#include "ExpressionMarks.h" // for expressionMarkToCC
+#include "EnvelopeUtils.h"
+#include <algorithm>
+#include <cmath>
 
 namespace dynamizer
 {
@@ -21,13 +25,27 @@ std::vector<std::pair<double, int>> generateBreathCCFromEnvelope(
 
     if (startVal == endVal)
     {
-        // Single dynamic level: one CC event at the start
-        int ccVal = expressionMarkToCC(startDynamic, minDynamicInScore, maxDynamicInScore);
-        result.emplace_back(0.0, ccVal);
+        minVal -= 1;
+        double rangeMark = static_cast<double>(maxVal - minVal) * 1.01;
+        double normalizedMark = (startVal - minVal) / rangeMark;
+        for (const auto& pt : envelope)
+        {
+            double envelopeCenter = computeEnvelopeMean(envelope);
+            double delta = pt.value - envelopeCenter;
+            double dynamicVal = normalizedMark + delta;
+            dynamicVal = std::clamp(dynamicVal, 0.0, 1.0);
+            int ccVal = static_cast<int>(dynamicVal * 126.0);
+            double positionInBeats = pt.time * durationInBeats;
+            if (!result.empty() && result.back().second == ccVal)
+            {
+                continue;
+            }
+            result.emplace_back(positionInBeats, ccVal);
+        }
         return result;
     }
 
-    std::vector<Point> adjustedEnvelope = envelope;
+std::vector<Point> adjustedEnvelope = envelope;
     if (startVal > endVal)
     {
         for (auto& pt : adjustedEnvelope)
@@ -36,32 +54,26 @@ std::vector<std::pair<double, int>> generateBreathCCFromEnvelope(
         }
     }
 
-    // Map each envelope point to a scaled value across the dynamic range
     int lastCC = -1;
-    for (const auto& point : /*envelope*/adjustedEnvelope)
+    for (const auto& point : adjustedEnvelope)
     {
-        double alpha = point.value; // normalized [0–1] envelope
+        double alpha = point.value;
         double dynamicVal = startVal + alpha * (endVal - startVal);
+        dynamicVal = std::clamp(dynamicVal, static_cast<double>(minVal), static_cast<double>(maxVal));
+
+        // Use high-res float-to-CC mapping for ramps
         double norm = (dynamicVal - minVal) / (maxVal - minVal);
         int ccVal = static_cast<int>(norm * 127.0);
-        if (ccVal == lastCC)
-        {
-            continue;
-        }
-        lastCC = ccVal;
+
         double positionInBeats = point.time * durationInBeats;
-        if (!result.empty() && std::abs(positionInBeats - result.back().first) < 0.01)
-        {
-            result.back().second = ccVal;
-        }
-        else
-        {
-            result.emplace_back(positionInBeats, ccVal);
-        }
+        if (ccVal == lastCC)
+            continue;
+        lastCC = ccVal;
+        result.emplace_back(positionInBeats, ccVal);
     }
 
     return result;
 }
 
 //-------------------------------------------------------------------------------------------
-}// namespace dynamizer
+} // namespace dynamizer
