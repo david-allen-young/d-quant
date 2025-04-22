@@ -89,6 +89,13 @@ std::vector<Point> applyPitchEnvelope(
             std::cout << "delta==" << delta << "; cents==" << cents << "; value==" << value << std::endl;
             result.emplace_back(pt.first, value);
         }
+
+        std::cout << "[DEBUG] Final pitch envelope (to be added to builder):\n";
+        for (const auto& pt : result)
+        {
+            std::cout << "  beat " << pt.time << " -> PB " << pt.value << std::endl;
+        }
+
         return result;
     }
     else
