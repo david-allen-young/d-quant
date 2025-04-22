@@ -38,6 +38,7 @@ void MidiFileWriter::writeSingleNoteFile(const NoteInterface& note,
     // === [2] Expression Preroll Handling ===
     // We'll shift expression points earlier so that the *last* preroll CC lands at beat 1.0
     const auto& expression = note.getExpression();
+    const auto& intonation = note.getIntonation();
     size_t prerollCCCount = std::min<size_t>(2, expression.size());
 
     double prerollBeats = 0.0;
@@ -56,6 +57,34 @@ void MidiFileWriter::writeSingleNoteFile(const NoteInterface& note,
         trackData.push_back(static_cast<uint8_t>(value));
     };
 
+    auto emitPitchBend = [&](uint32_t tick, int pitchWheelValue)
+    {
+        writeVariableLengthQuantity(trackData, tick - lastTick);
+        trackData.push_back(0xE0); // Pitch Bend, channel 0
+
+        // MIDI Pitch Bend is 14-bit value, split into LSB (7 bits) and MSB (7 bits)
+        uint8_t lsb = static_cast<uint8_t>(pitchWheelValue & 0x7F);
+        uint8_t msb = static_cast<uint8_t>((pitchWheelValue >> 7) & 0x7F);
+
+        trackData.push_back(lsb);
+        trackData.push_back(msb);
+        //lastTick = tick;
+    };
+
+    auto findCorrespondingIntonation = [&](double ccBeat)
+    {
+        for (const auto& [pbwBeat, pbwValueAbs] : intonation)
+        {
+            auto dist = std::abs(pbwBeat - ccBeat);
+            if (dist < 0.01)
+            {
+                double pbwValueNorm = pbwValueAbs / 8192.0;
+                return pbwValueNorm;
+            }
+        }
+        return 0.0;
+    };
+
     // === [3] Shifted Expression (CC2) - PRE-NOTE
     for (const auto& [beat, ccValueNorm] : expression)
     {
@@ -66,6 +95,11 @@ void MidiFileWriter::writeSingleNoteFile(const NoteInterface& note,
             continue; // skip post-note CC2s for now
 
         emitCC(tick, static_cast<int>(ccValueNorm * 127.0));
+
+        tick += 1;
+        auto pbwValueNorm = findCorrespondingIntonation(beat);
+        emitPitchBend(tick, static_cast<int>(pbwValueNorm) * 8192.0);
+
         lastTick = tick;
     }
 
@@ -89,6 +123,11 @@ void MidiFileWriter::writeSingleNoteFile(const NoteInterface& note,
             continue; // already written
 
         emitCC(tick, static_cast<int>(ccValueNorm * 127.0));
+
+        tick += 1;
+        auto pbwValueNorm = findCorrespondingIntonation(beat);
+        emitPitchBend(tick, static_cast<int>(pbwValueNorm) * 8192.0);
+
         lastTick = tick;
     }
 
@@ -101,6 +140,10 @@ void MidiFileWriter::writeSingleNoteFile(const NoteInterface& note,
         trackData.push_back(0x80); // Note Off
         trackData.push_back(static_cast<uint8_t>(note.getKeyNumber()));
         trackData.push_back(0); // velocity 0
+
+        tick += 24;
+        emitPitchBend(tick, 0);
+
         lastTick = tick;
     }
 
