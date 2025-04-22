@@ -105,7 +105,7 @@ auto emitPitchBend = [&](uint32_t tick, int pitchWheelValue)
 
         tick += 1;
         auto pbwValueNorm = findCorrespondingIntonation(beat);
-        emitPitchBend(tick, static_cast<int>(pbwValueNorm) * 8192.0);
+        emitPitchBend(tick, static_cast<int>(pbwValueNorm * 8192.0));
 
         lastTick = tick;
     }
@@ -133,7 +133,7 @@ auto emitPitchBend = [&](uint32_t tick, int pitchWheelValue)
 
         tick += 1;
         auto pbwValueNorm = findCorrespondingIntonation(beat);
-        emitPitchBend(tick, static_cast<int>(pbwValueNorm) * 8192.0);
+        emitPitchBend(tick, static_cast<int>(pbwValueNorm * 8192.0));
 
         lastTick = tick;
     }
