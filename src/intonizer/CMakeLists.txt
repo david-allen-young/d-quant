@@ -1,6 +1,6 @@
 add_library(intonizer
     intonizer.cpp
-    intonizer.h
+    IntonationGenerator.cpp
 )
 
 target_include_directories(intonizer PUBLIC ${CMAKE_CURRENT_SOURCE_DIR})
