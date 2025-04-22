@@ -115,7 +115,15 @@ void generate_single_note_midi(const MidiArgs& args)
 
     // === [4] Intonizer stub ===
     double centsPerDeltaCC = 1.2;
-    double compensation = (dynStart != dynEnd) ? 0.98 : 1.0;
+    double compensation = (dynStart == dynEnd) ? 1.25 : 0.25;
+    //if (dynEnd > dynStart)
+    //{
+    //    compensation = 0.98;
+    //}
+    //else if (dynStart > dynEnd)
+    //{
+    //    compensation = 0.72;
+    //}
     //double compensation = 1.0;
     auto pitchEnvelope = intonizer::applyPitchEnvelope(breathCC, dynStart == dynEnd, centsPerDeltaCC, compensation);
 

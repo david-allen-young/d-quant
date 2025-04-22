@@ -80,9 +80,13 @@ std::vector<Point> applyPitchEnvelope(
         for (const auto& pt : breathEnvelope)
         {
             int delta = pt.second - breathCenter;
-            centsPerDeltaCC *= compensationFactor;
+            //centsPerDeltaCC *= compensationFactor;
             double cents = static_cast<double>(delta) * centsPerDeltaCC;
-            cents = std::clamp(cents, -50.0, 50.0);
+            //cents = std::clamp(cents, -25.0, 25.0);
+            
+            //cents /= 2;
+            cents *= compensationFactor;
+
             //double value = (unit == OutputUnit::PitchWheelUnits)
             //                    ? static_cast<double>(centsToPitchWheel(cents))
             //                    : cents;
