@@ -45,7 +45,7 @@ std::vector<std::pair<double, int>> generateBreathCCFromEnvelope(
         return result;
     }
 
-    std::vector<Point> adjustedEnvelope = envelope;
+std::vector<Point> adjustedEnvelope = envelope;
     if (startVal > endVal)
     {
         for (auto& pt : adjustedEnvelope)
@@ -61,23 +61,15 @@ std::vector<std::pair<double, int>> generateBreathCCFromEnvelope(
         double dynamicVal = startVal + alpha * (endVal - startVal);
         dynamicVal = std::clamp(dynamicVal, static_cast<double>(minVal), static_cast<double>(maxVal));
 
-        ExpressionMark dynMark = static_cast<ExpressionMark>(static_cast<int>(std::round(dynamicVal)));
-        int ccVal = expressionMarkToCC(dynMark, minDynamicInScore, maxDynamicInScore);
+        // Use high-res float-to-CC mapping for ramps
+        double norm = (dynamicVal - minVal) / (maxVal - minVal);
+        int ccVal = static_cast<int>(norm * 127.0);
 
-        if (ccVal == lastCC)
-        {
-            continue;
-        }
-        lastCC = ccVal;
         double positionInBeats = point.time * durationInBeats;
-        if (!result.empty() && std::abs(positionInBeats - result.back().first) < 0.01)
-        {
-            result.back().second = ccVal;
-        }
-        else
-        {
-            result.emplace_back(positionInBeats, ccVal);
-        }
+        if (ccVal == lastCC)
+            continue;
+        lastCC = ccVal;
+        result.emplace_back(positionInBeats, ccVal);
     }
 
     return result;
