@@ -12,6 +12,9 @@
 #include <random>
 #include <iostream>
 
+#include "../core/PathRegistry.h"
+
+
 using dynamizer::ExpressionMark;
 using dynamizer::markFromStr;
 using dynamizer::getRangeForPreset;
@@ -20,6 +23,10 @@ using dynamizer::generateBreathCCFromEnvelope;
 
 void generate_single_note_midi(const MidiArgs& args)
 {
+    // near the beginning of main()
+    PathRegistry::loadFromFile("config.json");
+    PathRegistry::loadFromEnv(); // optional but helpful
+
     // === [1] Create the base NoteBuilder ===
     NoteBuilderMidi builder;
     builder.setKeyNumber(args.note_number);
@@ -48,7 +55,16 @@ void generate_single_note_midi(const MidiArgs& args)
         subdir = "stable";
 
 
-    std::filesystem::path morphDir = (std::filesystem::path(args.morph_csv_dir) / subdir / "generated").lexically_normal();
+    //std::filesystem::path morphDir = (std::filesystem::path(args.morph_csv_dir) / subdir / "generated").lexically_normal();
+    
+    //std::string morphCsvDir = PathRegistry::get("morph_csv_dir");
+    //std::filesystem::path morphDir = std::filesystem::absolute(morphCsvDir) / subdir / "generated";
+
+    std::filesystem::path morphDir =
+        PathRegistry::getResolvedPath("morph_csv_dir") / subdir / "generated";
+
+
+
     std::cout << "Selected morph directory: " << morphDir << std::endl;
 
     auto envelopePath = selectRandomCsvInDir(morphDir.string());
