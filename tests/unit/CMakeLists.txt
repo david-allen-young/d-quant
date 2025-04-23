@@ -1,4 +1,5 @@
 add_executable(dquant_unit_tests
+    main.cpp
     test_core.cpp
     test_envelope_morphing.cpp
 	test_csv_io.cpp
