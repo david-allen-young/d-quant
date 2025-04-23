@@ -16,7 +16,7 @@ target_link_libraries(dquant_unit_tests
     rhythmizer
     dynamizer
     intonizer
-    Catch2::Catch2WithMain
+    Catch2::Catch2
 )
 
 target_include_directories(dquant_unit_tests
