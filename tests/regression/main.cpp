@@ -4,6 +4,22 @@
 #include <catch2/catch_session.hpp>
 #include <iostream>
 
+void cleanUpGeneratedTestFiles()
+{
+    using std::filesystem::remove_all;
+    try
+    {
+        auto testOutDir = PathRegistry::getResolvedPath("working_dir_tests");
+        remove_all(testOutDir);
+        std::cout << "[INFO] Cleaned up test output directory: " << testOutDir << std::endl;
+    }
+    catch (const std::exception& ex)
+    {
+        std::cerr << "[WARN] Cleanup failed: " << ex.what() << std::endl;
+    }
+}
+
+
 int main(int argc, char* argv[])
 {
     try
@@ -21,6 +37,10 @@ int main(int argc, char* argv[])
         return 1;
     }
 
-    // Start Catch2
-    return Catch::Session().run(argc, argv);
+    int result = Catch::Session().run(argc, argv);
+
+    // Clean up only after all tests run
+    cleanUpGeneratedTestFiles();
+
+    return result;
 }
