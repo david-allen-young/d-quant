@@ -1,0 +1,8 @@
+{
+  "assets_dir": "assets/",
+  "working_dir_cli": "out/",
+  "working_dir_tests": "tests/test_output/",
+  "input_midi_dir": "assets/midi",
+  "morph_csv_dir": "tests/test_output/dynamizer/morphs/",
+  "rhythm_deviation_csv": "tests/test_output/rhythmizer/deviation.csv"
+}
