@@ -45,11 +45,6 @@ bool load_args_from_json(const std::string& path, MidiArgs& out_args)
     }
     if (j.contains("output_file"))
         out_args.output_file = j["output_file"];
-    if (j.contains("morph_csv_dir"))
-        out_args.morph_csv_dir = j["morph_csv_dir"];
-    if (j.contains("rhythm_deviation_csv"))
-        out_args.rhythm_deviation_csv = j["rhythm_deviation_csv"];
-
 
     return true;
 }

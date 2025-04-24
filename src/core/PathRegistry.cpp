@@ -46,6 +46,7 @@ void PathRegistry::loadFromFile(const std::string& filepath)
     {
         paths[key] = value.get<std::string>();
     }
+    applyDefaults();
 }
 
 void PathRegistry::loadFromEnv()
@@ -59,10 +60,6 @@ void PathRegistry::loadFromEnv()
 
 void PathRegistry::applyDefaults()
 {
-    if (paths.find("assets_dir") == paths.end())
-    {
-        paths["assets_dir"] = "assets/";
-    }
     if (paths.find("working_dir_cli") == paths.end())
     {
         paths["working_dir_cli"] = "out/";
@@ -70,6 +67,22 @@ void PathRegistry::applyDefaults()
     if (paths.find("working_dir_tests") == paths.end())
     {
         paths["working_dir_tests"] = "tests/test_output/";
+    }
+    if(paths.find("dynamizer_training") == paths.end())
+    {
+        paths["dynamizer_training"] = "assets/training/dynamizer";
+    }
+    if (paths.find("dynamizer_generation") == paths.end())
+    {
+        paths["dynamizer_generation"] = "assets/generation/dynamizer";
+    }
+    if (paths.find("rhythmizer_training") == paths.end())
+    {
+        paths["rhythmizer_training"] = "assets/training/rhythmizer";
+    }
+    if (paths.find("rhythmizer_generation") == paths.end())
+    {
+        paths["rhythmizer_generation"] = "assets/generation/rhythmizer";
     }
 }
 

@@ -2,6 +2,7 @@
 #include "SingleNoteGenerator.h"
 #include "JsonConfigLoader.h"
 #include <iostream>
+#include "../core/PathRegistry.h"
 
 int main(int argc, char* argv[])
 {
@@ -13,7 +14,7 @@ int main(int argc, char* argv[])
         {
             // No command-line arguments passed
             std::cout << "[INFO] No arguments provided - loading default config file\n";
-            if (!load_args_from_json("default_test_config.json", args))
+            if (!load_args_from_json("config_cli.json", args))
             {
                 throw std::runtime_error("Could not load default_test_config.json");
             }
@@ -25,6 +26,7 @@ int main(int argc, char* argv[])
 #else
         args = parse_args(argc, argv);
 #endif
+        PathRegistry::loadFromFile("config.json");
         generate_single_note_midi(args);
     }
     catch (const std::exception& e)
