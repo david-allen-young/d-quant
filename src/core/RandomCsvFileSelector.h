@@ -29,8 +29,8 @@ std::string selectRandomCsvInDir(const std::string& dirPath)
 
     std::uniform_int_distribution<> indexDist(0, static_cast<int>(csvFiles.size()) - 1);
     int rIdx = indexDist(globalRng());
-    std::cout << "[DEBUG] Total morphs available: " << csvFiles.size() << std::endl;
-    std::cout << "[DEBUG] Selected morph envelope: " << csvFiles[rIdx] << std::endl;
+    //std::cout << "[DEBUG] Total morphs available: " << csvFiles.size() << std::endl;
+    //std::cout << "[DEBUG] Selected morph envelope: " << csvFiles[rIdx] << std::endl;
 
     return csvFiles[rIdx];
 }
