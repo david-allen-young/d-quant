@@ -10,18 +10,28 @@
 namespace fs = std::filesystem;
 using namespace rhythmizer;
 
+#include "core/PathRegistry.h"
+
 TEST_CASE("Rhythmizer processes training MIDI file and writes deviation CSV", "[rhythmizer]")
 {
     const auto& args = getPipelineArgs();
-    const std::string inputFile = args.rhythmizer_midi_path;
-    const std::string outFile = args.rhythm_deviation_csv;
+
+    //const std::string inputFile = args.rhythmizer_midi_path;
+    //const std::string outFile = args.rhythm_deviation_csv;
+
+    const auto inputBase = PathRegistry::getResolvedPath("rhythmizer_training");
+    const auto inputPath = (inputBase / "Rhythmizer_Training_ORD_04Nx48_0001.midi").lexically_normal();
+
+    const auto testsBase = PathRegistry::getResolvedPath("working_dir_tests");
+    const auto outputDir = (testsBase / "midi_to_csv").lexically_normal();
+    const auto outputPath = (outputDir / "generated_rhythm_deviation.csv").lexically_normal();
     
     // Ensure parent directory of output CSV exists
-    fs::create_directories(fs::path(outFile).parent_path());
+    fs::create_directories(fs::path(outputDir).parent_path());
 
     MidiFileReader_v2 midi;
-    midi.readMidi(inputFile);
-    std::cout << "Trying to read MIDI file: " << inputFile << "\n";
+    midi.readMidi(inputPath.string());
+    std::cout << "Trying to read MIDI file: " << inputPath.string() << "\n";
     REQUIRE(midi.getTracks().size() > 1);
 
     std::vector<NoteData> notes;
@@ -30,10 +40,10 @@ TEST_CASE("Rhythmizer processes training MIDI file and writes deviation CSV", "[
 
     CHECK(notes.size() > 0);
 
-    writeRhythmDeviationCSV(notes, outFile);
-    CHECK(fs::exists(outFile));
+    writeRhythmDeviationCSV(notes, outputPath.string());
+    CHECK(fs::exists(outputPath));
 
-    std::ifstream f(outFile);
+    std::ifstream f(outputPath);
     std::string header;
     std::getline(f, header);
     CHECK(header == "NominalPosition,DeltaPosition,DurationRatio,VelocityDelta");
@@ -47,5 +57,5 @@ TEST_CASE("Rhythmizer processes training MIDI file and writes deviation CSV", "[
     }
 
     CHECK(lineCount == notes.size());
-    std::cout << "Wrote: " << fs::absolute(outFile) << std::endl;
+    std::cout << "Wrote: " << fs::absolute(outputPath) << std::endl;
 }

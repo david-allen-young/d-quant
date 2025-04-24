@@ -10,12 +10,19 @@
 using namespace dynamizer;
 namespace fs = std::filesystem;
 
+#include "core/PathRegistry.h"
+
 TEST_CASE("run_breath_cc_generation produces valid CC data", "[regression]")
 {
     ensure_morphs_exist();
     const auto& args = getPipelineArgs();
-    const std::string inputDir = args.morph_csv_dir;
-    const std::string outputDir = args.output_dir + "/breath_cc";
+
+    //const std::string inputDir = args.morph_csv_dir;
+    //const std::string outputDir = args.output_dir + "/breath_cc";
+
+    const auto testsBase = PathRegistry::getResolvedPath("working_dir_tests");
+    const auto inputDir = (testsBase / "morphs_csv").lexically_normal();
+    const auto outputDir = (testsBase / "breath_cc").lexically_normal();
 
     fs::create_directories(outputDir);
     std::vector<std::vector<Point>> morphedEnvelopes;
@@ -54,7 +61,7 @@ TEST_CASE("run_breath_cc_generation produces valid CC data", "[regression]")
         output.push_back({beat, static_cast<double>(cc)});
     }
 
-    const std::string outFile = outputDir + "/breath_cc_test.csv";
+    const std::string outFile = (outputDir / "breath_cc_test.csv").lexically_normal().string();
     writeCSV(output, outFile);
     std::cout << "Wrote: " << fs::absolute(outFile) << std::endl;
 

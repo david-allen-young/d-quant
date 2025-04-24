@@ -7,19 +7,28 @@
 #include "PipelineArgsRegistry.h"
 namespace fs = std::filesystem;
 
+#include "core/PathRegistry.h"
+
 TEST_CASE("run_midi_to_envelope_csv outputs expected CSV files", "[regression]")
 {
     const auto& args = getPipelineArgs();
-    const std::string inputMidi = args.dynamizer_midi_path;
-    const std::string outDir = args.envelope_csv_dir;
+    //const std::string inputMidi = args.dynamizer_midi_path;
+    //const std::string outDir = args.envelope_csv_dir;
 
-    fs::create_directories(outDir);
-    std::cout << "Writing envelope CSVs to: " << fs::absolute(outDir) << "\n";
+    const auto inputBase = PathRegistry::getResolvedPath("dynamizer_training");
+    const auto inputDir = (inputBase / "crescendo").lexically_normal();
+    const auto inputPath = (inputDir / "Dynamizer_Training_CRE_pp_to_ff_0001.midi").lexically_normal();
 
-    run_midi_to_envelope_csv(inputMidi, outDir);
+    const auto testsBase = PathRegistry::getResolvedPath("working_dir_tests");
+    const auto outputDir = (testsBase / "midi_to_csv").lexically_normal();
+
+    fs::create_directories(outputDir);
+    std::cout << "Writing envelope CSVs to: " << fs::absolute(outputDir) << "\n";
+
+    run_midi_to_envelope_csv(inputPath.string(), outputDir.string());
 
     size_t csvCount = 0;
-    for (const auto& entry : fs::directory_iterator(outDir))
+    for (const auto& entry : fs::directory_iterator(outputDir))
     {
         if (entry.path().extension() == ".csv")
         {

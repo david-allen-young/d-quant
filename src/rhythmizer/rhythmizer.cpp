@@ -46,6 +46,7 @@ private:
     std::mt19937 rng;
 };
 
+// TODO: Get these from the CSV produced by analysis
 RhythmVariationGenerator generator(
     /*meanPos=*/-0.0782, /*stdPos=*/0.0371,
     /*meanDur=*/0.7372, /*stdDur=*/0.0681

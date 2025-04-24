@@ -11,11 +11,19 @@
 using namespace dynamizer;
 namespace fs = std::filesystem;
 
+#include "core/PathRegistry.h"
+
 TEST_CASE("NoteBuilder can write an expressive note to MIDI", "[regression]")
 {
     const auto& args = getPipelineArgs();
-    const std::string inputDir = args.morph_csv_dir;
-    const std::string outputDir = args.output_dir + "/midi";
+    
+    //const std::string inputDir = args.morph_csv_dir;
+    //const std::string outputDir = args.output_dir + "/midi";
+
+    const auto testsBase = PathRegistry::getResolvedPath("working_dir_tests");
+    const auto inputDir = (testsBase / "morphs_csv").lexically_normal();
+    const auto outputDir = (testsBase / "expressive_note").lexically_normal();
+
     fs::create_directories(outputDir);
 
     // Load a random envelope
@@ -55,7 +63,7 @@ TEST_CASE("NoteBuilder can write an expressive note to MIDI", "[regression]")
     CHECK(note != nullptr);
 
     // === Save to MIDI file ===
-    std::string outPath = outputDir + "/expressive_note.mid";
+    std::string outPath = (outputDir / "expressive_note_test.mid").lexically_normal().string();
     MidiFileWriter writer;
     writer.writeSingleNoteFile(*note, outPath, 480, MidiController::Breath);
     std::cout << "Wrote: " << fs::absolute(outPath) << std::endl;

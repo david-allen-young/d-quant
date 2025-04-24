@@ -1,4 +1,5 @@
 add_executable(dquant_unit_tests
+    main.cpp
     test_core.cpp
     test_envelope_morphing.cpp
 	test_csv_io.cpp
@@ -15,7 +16,7 @@ target_link_libraries(dquant_unit_tests
     rhythmizer
     dynamizer
     intonizer
-    Catch2::Catch2WithMain
+    Catch2::Catch2
 )
 
 target_include_directories(dquant_unit_tests

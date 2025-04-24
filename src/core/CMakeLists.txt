@@ -5,6 +5,7 @@ add_library(core
 	MidiFileWriter.cpp
     MidiTrackParser.cpp
     NoteBuilder.cpp
+	PathRegistry.cpp
 	PipelineArgsRegistry.cpp
 	PipelineConfigLoader.cpp
 )
