@@ -19,9 +19,8 @@ TEST_CASE("Rhythmizer processes training MIDI file and writes deviation CSV", "[
     //const std::string inputFile = args.rhythmizer_midi_path;
     //const std::string outFile = args.rhythm_deviation_csv;
 
-    const auto inputBase = PathRegistry::getResolvedPath("input_midi_dir");
-    const auto inputDir = (inputBase / "").lexically_normal();
-    const auto inputPath = (inputDir / "Rhythmizer_Training_ORD_04Nx48_0001.midi").lexically_normal();
+    const auto inputBase = PathRegistry::getResolvedPath("rhythmizer_training");
+    const auto inputPath = (inputBase / "Rhythmizer_Training_ORD_04Nx48_0001.midi").lexically_normal();
 
     const auto testsBase = PathRegistry::getResolvedPath("working_dir_tests");
     const auto outputDir = (testsBase / "midi_to_csv").lexically_normal();

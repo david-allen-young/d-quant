@@ -15,8 +15,8 @@ TEST_CASE("run_midi_to_envelope_csv outputs expected CSV files", "[regression]")
     //const std::string inputMidi = args.dynamizer_midi_path;
     //const std::string outDir = args.envelope_csv_dir;
 
-    const auto inputBase = PathRegistry::getResolvedPath("input_midi_dir");
-    const auto inputDir = (inputBase / "").lexically_normal();
+    const auto inputBase = PathRegistry::getResolvedPath("dynamizer_training");
+    const auto inputDir = (inputBase / "crescendo").lexically_normal();
     const auto inputPath = (inputDir / "Dynamizer_Training_CRE_pp_to_ff_0001.midi").lexically_normal();
 
     const auto testsBase = PathRegistry::getResolvedPath("working_dir_tests");

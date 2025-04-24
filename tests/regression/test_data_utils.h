@@ -16,7 +16,7 @@ inline void ensure_envelopes_exist()
     //const std::string inputMidi = args.dynamizer_midi_path;
     //const std::string envelopeDir = args.envelope_csv_dir;
 
-    const auto inputBase = PathRegistry::getResolvedPath("input_midi_dir");
+    const auto inputBase = PathRegistry::getResolvedPath("dynamizer_training");
     const auto inputDir = (inputBase / "").lexically_normal();
     const auto inputPath = (inputDir / "Dynamizer_Training_CRE_pp_to_ff_0001.midi").lexically_normal();
 
