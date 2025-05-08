@@ -2,6 +2,7 @@ add_executable(dquant_phrase_cli
     main.cpp
     PhraseJsonParser.cpp
     SongContextLoader.cpp
+	PhraseRenderer.cpp
 )
 
 target_include_directories(dquant_phrase_cli PRIVATE
