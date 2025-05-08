@@ -10,6 +10,10 @@
 #include "AnalysisHelpers.h" // for readCSV
 #include <filesystem>
 
+#include "dynamizer.h" // or "ExpressionGenerator.h"
+using dynamizer::ExpressionMark;
+using dynamizer::markFromStr;
+
 namespace
 {
 
@@ -61,9 +65,13 @@ void generate_phrase_midi(const PhraseArgs& phrase, const SongContext& context, 
 
     auto morphsBase = PathRegistry::getResolvedPath("dynamizer_generation").lexically_normal();
 
-    std::string subdir = (phrase.dyn_start < phrase.dyn_end)   ? "crescendo"
-                         : (phrase.dyn_start > phrase.dyn_end) ? "diminuendo"
-                                                               : "stable";
+    ExpressionMark dynStart = markFromStr(phrase.dyn_start);
+    ExpressionMark dynEnd = markFromStr(phrase.dyn_end);
+
+    std::string subdir = (dynStart < dynEnd)   ? "crescendo"
+                         : (dynStart > dynEnd) ? "diminuendo"
+                                               : "stable";
+
     std::filesystem::path morphDir = morphsBase / subdir;
 
     auto envelopeCsv = selectRandomCsvInDir(morphDir.string());
@@ -113,7 +121,18 @@ void generate_phrase_midi(const PhraseArgs& phrase, const SongContext& context, 
     auto envPath = (csvOutDir / (options.output_id + "_dynamics.csv")).string();
     auto rhyPath = (csvOutDir / (options.output_id + "_rhythm.csv")).string();
 
-    writeEnvelopeCsv(envPath, envelopePoints);
+    std::vector<std::pair<double, double>> ccAsPairs;
+    for (const auto& pt : envelopePoints)
+    {
+        double val = pt.value;
+        if (val < 1.0 / 256.0)
+        {
+            val = 0;
+        }
+        ccAsPairs.emplace_back(pt.time, val);
+    }
+
+    writeEnvelopeCsv(envPath, ccAsPairs);
     writeRhythmizerCsv(rhyPath, rhythmDeltas);
 
     std::cout << "[INFO] Wrote envelope to: " << envPath << "\n";
