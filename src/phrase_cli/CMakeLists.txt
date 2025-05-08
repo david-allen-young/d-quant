@@ -4,6 +4,7 @@ add_executable(dquant_phrase_cli
     SongContextLoader.cpp
 	PhraseRenderer.cpp
 	CsvWriters.cpp
+	MidiPhraseBuilder.cpp
 )
 
 target_include_directories(dquant_phrase_cli PRIVATE
