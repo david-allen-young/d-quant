@@ -1,6 +1,6 @@
 #pragma once
 #include "MidiEvent.h"
-#include "NoteInterface.h"
+#include "Note.h"
 #include "MidiFileWriter.h"
 #include <string>
 #include <vector>
