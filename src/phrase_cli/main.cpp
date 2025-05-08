@@ -1,5 +1,6 @@
 #include "PhraseArgs.h"
 #include "PhraseJsonParser.h"
+#include "PhraseRenderer.h"
 #include "RenderOptions.h"
 #include "SongContext.h"
 #include "SongContextLoader.h"
@@ -70,6 +71,8 @@ int main(int argc, char* argv[])
         std::cerr << "Error: " << e.what() << "\n";
         return 1;
     }
+
+    generate_phrase_midi(phrase, song, options);
 
     return 0;
 }
