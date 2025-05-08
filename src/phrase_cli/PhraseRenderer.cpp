@@ -3,6 +3,13 @@
 #include <iostream>
 #include <map>
 
+#include "CsvWriters.h"
+#include "rhythmizer.h"
+#include "RandomCsvFileSelector.h"
+#include "../core/PathRegistry.h"
+#include "AnalysisHelpers.h" // for readCSV
+#include <filesystem>
+
 namespace
 {
 
@@ -31,22 +38,84 @@ void generate_phrase_midi(const PhraseArgs& phrase, const SongContext& context, 
     std::cout << "[DEBUG] Dynamic Preset: " << context.dyn_preset << "\n";
     std::cout << "[DEBUG] Slur applied: " << (phrase.slur ? "Yes" : "No") << "\n";
 
+    //float current_time = 0.0f;
+
+    //for (size_t i = 0; i < phrase.notes.size(); ++i)
+    //{
+    //    const auto& note = phrase.notes[i];
+    //    int midi = pitchToMidi(note.pitch);
+
+    //    std::cout << "Note " << i + 1 << ": pitch=" << note.pitch
+    //              << " (MIDI " << midi << "), duration=" << note.duration_beats
+    //              << ", starts at beat " << current_time
+    //              << ", articulation=" << note.articulation
+    //              << ", accent=" << note.accent << "\n";
+
+    //    current_time += note.duration_beats;
+    //}
+
+    std::vector<std::tuple<double, double, double>> rhythmDeltas;
+    std::vector<Point> envelopePoints;
+
     float current_time = 0.0f;
 
+    auto morphsBase = PathRegistry::getResolvedPath("dynamizer_generation").lexically_normal();
+
+    std::string subdir = (phrase.dyn_start < phrase.dyn_end)   ? "crescendo"
+                         : (phrase.dyn_start > phrase.dyn_end) ? "diminuendo"
+                                                               : "stable";
+    std::filesystem::path morphDir = morphsBase / subdir;
+
+    auto envelopeCsv = selectRandomCsvInDir(morphDir.string());
+    std::cout << "[DEBUG] Envelope CSV: " << envelopeCsv << "\n";
+    readCSV(envelopeCsv, envelopePoints); // (Position, Expression)
+
+    // === [TIMING LOOP] ===
     for (size_t i = 0; i < phrase.notes.size(); ++i)
     {
         const auto& note = phrase.notes[i];
-        int midi = pitchToMidi(note.pitch);
+        int midiNoteNum = pitchToMidi(note.pitch);
+
+        double nominalPos = current_time;
+        double nominalDur = note.duration_beats;
+
+        NoteBuilderMidi builder;
+        builder.setKeyNumber(midiNoteNum);
+
+        // Rhythmizer modifies duration + position in place
+        rhythmizer::applyTiming(builder, nominalPos, nominalDur, note.articulation);
+
+        double actualPos = builder.getData().positionInBeats;
+        double actualDur = builder.getData().durationInBeats;
+
+        double delta = actualPos - nominalPos;
+        double ratio = actualDur / nominalDur;
+
+        rhythmDeltas.emplace_back(nominalPos, delta, ratio);
 
         std::cout << "Note " << i + 1 << ": pitch=" << note.pitch
-                  << " (MIDI " << midi << "), duration=" << note.duration_beats
-                  << ", starts at beat " << current_time
+                  << " (MIDI " << midiNoteNum << "), nominal=" << nominalPos
+                  << ", actual=" << actualPos
+                  << ", dur=" << nominalDur << "->" << actualDur
                   << ", articulation=" << note.articulation
                   << ", accent=" << note.accent << "\n";
 
-        current_time += note.duration_beats;
+        current_time += nominalDur;
     }
 
-    std::cout << "[INFO] (Stub) Would write MIDI + envelope CSV to: "
-              << options.output_dir << "/" << options.output_id << ".mid/.csv\n";
+
+    //std::cout << "[INFO] (Stub) Would write MIDI + envelope CSV to: "
+    //          << options.output_dir << "/" << options.output_id << ".mid/.csv\n";
+
+    const auto csvOutDir = (PathRegistry::getResolvedPath("working_dir_cli") / "csv").lexically_normal();
+    std::filesystem::create_directories(csvOutDir);
+
+    auto envPath = (csvOutDir / (options.output_id + "_dynamics.csv")).string();
+    auto rhyPath = (csvOutDir / (options.output_id + "_rhythm.csv")).string();
+
+    writeEnvelopeCsv(envPath, envelopePoints);
+    writeRhythmizerCsv(rhyPath, rhythmDeltas);
+
+    std::cout << "[INFO] Wrote envelope to: " << envPath << "\n";
+    std::cout << "[INFO] Wrote rhythm data to: " << rhyPath << "\n";
 }
