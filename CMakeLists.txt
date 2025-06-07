@@ -20,6 +20,7 @@ add_subdirectory(src/rhythmizer)
 add_subdirectory(src/dynamizer)
 add_subdirectory(src/intonizer)
 add_subdirectory(src/main)
+add_subdirectory(src/phrase_cli)
 
 # Add test suite subdirectories
 add_subdirectory(tests/unit)
