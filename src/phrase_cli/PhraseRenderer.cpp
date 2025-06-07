@@ -172,7 +172,7 @@ void generate_phrase_midi(const PhraseArgs& phrase, const SongContext& context, 
         auto rawSegment = extractEnvelopeSegment(envelope, start, end);
 
         // === Partition & load expression
-        auto ccSegment = generateBreathCCFromEnvelope(rawSegment, phraseDuration, dynStart, dynEnd, dynPreset.first, dynPreset.second);
+        auto ccSegment = generateBreathCCFromEnvelope(rawSegment, dur, dynStart, dynEnd, dynPreset.first, dynPreset.second);
         for (const auto& [t, val] : ccSegment)
         {
             builder.addExpression(t, val);
@@ -226,4 +226,11 @@ void generate_phrase_midi(const PhraseArgs& phrase, const SongContext& context, 
 
     std::cout << "[INFO] Wrote envelope to: " << envPath << "\n";
     std::cout << "[INFO] Wrote rhythm data to: " << rhyPath << "\n";
+
+    auto midiOutDir = (PathRegistry::getResolvedPath("working_dir_cli") / "midi").lexically_normal();
+    std::filesystem::create_directories(midiOutDir);
+    auto midiOutPath = (midiOutDir / (options.output_id + ".mid")).string();
+
+    phraseBuilder.writeToFile(midiOutPath, tpqn);
+    std::cout << "[INFO] Wrote MIDI to: " << midiOutPath << "\n";
 }
