@@ -21,6 +21,8 @@ using dynamizer::markFromStr;
 #include "EnvelopeUtils.h"
 #include "MidiPhraseBuilder.h"
 
+#include "ExpressionMarks.h"
+
 namespace
 {
 
@@ -120,11 +122,11 @@ void generate_phrase_midi(const PhraseArgs& phrase, const SongContext& context, 
 
     // === Rescale breath and pitch envelope across full phrase ===
     double phraseDuration = current_time; // already accumulated
-    std::vector<Point> scaledBreathCC, scaledPitchBend;
+    std::vector<Point> envelope;
 
     for (const auto& pt : envelopePoints)
     {
-        scaledBreathCC.emplace_back(pt.time * phraseDuration, pt.value);
+        envelope.emplace_back(pt.time * phraseDuration, pt.value);
     }
 
     // Generate pitch bend from breathCC using intonizer
@@ -133,11 +135,13 @@ void generate_phrase_midi(const PhraseArgs& phrase, const SongContext& context, 
     double centsPerDeltaCC = 1.2;
     double compensation = (dynStart == dynEnd) ? 1.25 : 0.25;
 
-    auto pitchEnv = intonizer::applyPitchEnvelope(scaledBreathCC, dynStart == dynEnd, centsPerDeltaCC, compensation);
-    for (const auto& [t, v] : pitchEnv)
-    {
-        scaledPitchBend.emplace_back(t, v);
-    }
+    //auto dynPreset = getRangeForPreset(presetFromStr(args.dyn_preset));
+    auto dynPreset = dynamizer::getRangeForPreset(dynamizer::presetFromStr("pp-to-ff"));
+    auto breathCC = generateBreathCCFromEnvelope(envelope, phraseDuration, dynStart, dynEnd, dynPreset.first, dynPreset.second);
+    
+
+    auto pitchEnv = intonizer::applyPitchEnvelope(breathCC, dynStart == dynEnd, centsPerDeltaCC, compensation);
+
 
     //std::cout << "[INFO] (Stub) Would write MIDI + envelope CSV to: "
     //          << options.output_dir << "/" << options.output_id << ".mid/.csv\n";
