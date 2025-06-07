@@ -152,3 +152,16 @@ double computeEnvelopeMean(const std::vector<Point>& envelope)
         sum += pt.value;
     return sum / static_cast<double>(envelope.size());
 }
+
+std::vector<Point> extractEnvelopeSegment(const std::vector<Point>& envelope, double noteStart, double noteEnd)
+{
+    std::vector<Point> result;
+    for (const auto& pt : envelope)
+    {
+        if (pt.time >= noteStart && pt.time < noteEnd)
+        {
+            result.emplace_back(pt.time - noteStart, pt.value); // relative time
+        }
+    }
+    return result;
+}
