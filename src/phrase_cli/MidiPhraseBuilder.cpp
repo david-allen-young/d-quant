@@ -10,6 +10,58 @@ static uint32_t beatsToTicks(double beats, int tpqn)
     return static_cast<uint32_t>(std::max(0.0, std::round(beats * tpqn)));
 }
 
+void MidiPhraseBuilder::addNote(const NoteInterface& note)
+{
+    double startBeat = note.getPositionInBeats();
+    double endBeat = startBeat + note.getDurationInBeats();
+
+    // === Note On
+    {
+        std::vector<uint8_t> noteOnMessage = {0x90,
+                                              static_cast<uint8_t>(note.getKeyNumber()),
+                                              static_cast<uint8_t>(note.getVelocity())};
+        MidiEvent noteOnEvent(startBeat, MidiEventType::NoteOn, noteOnMessage);
+        events.push_back(noteOnEvent);
+    }
+
+    // === Note Off
+    {
+        std::vector<uint8_t> noteOffMessage = {0x80,
+                                               static_cast<uint8_t>(note.getKeyNumber()),
+                                               static_cast<uint8_t>(0)};
+        MidiEvent noteOffEvent(endBeat, MidiEventType::NoteOff, noteOffMessage);
+        events.push_back(noteOffEvent);
+    }
+}
+
+
+void MidiPhraseBuilder::addExpression(const std::vector<std::pair<double, int>>& envelope)
+{
+    for (const auto& [beat, ccVal] : envelope)
+    {
+        std::vector<uint8_t> message = {0xB0,
+            static_cast<uint8_t>(static_cast<int>(cc)),
+            static_cast<uint8_t>(ccVal)
+        };
+        MidiEvent midiEvent(beat, MidiEventType::ControlChange, message);
+        events.push_back(midiEvent);
+    }
+}
+
+void MidiPhraseBuilder::addIntonation(const std::vector<Point>& envelope)
+{
+    for (const auto& [beat, /*pitchNorm*/pbVal] : envelope)
+    {
+        //int pbVal = static_cast<int>(pitchNorm * 8192.0);
+        int unsigned14 = pbVal + 8192;
+        uint8_t lsb = static_cast<uint8_t>(unsigned14 & 0x7F);
+        uint8_t msb = static_cast<uint8_t>((unsigned14 >> 7) & 0x7F);
+        std::vector<uint8_t> message = {0xE0, lsb, msb};
+        MidiEvent midiEvent(beat, MidiEventType::PitchBend, message);
+        events.push_back(midiEvent);
+    }
+}
+
 void MidiPhraseBuilder::addNote(const NoteInterface& note, int tpqn, MidiController cc)
 {
     double startBeat = note.getPositionInBeats();
@@ -46,6 +98,11 @@ void MidiPhraseBuilder::addNote(const NoteInterface& note, int tpqn, MidiControl
                           MidiEventType::PitchBend,
                           {0xE0, lsb, msb}});
     }
+}
+
+void MidiPhraseBuilder::writeToFile(const std::string& outPath)
+{
+    writeToFile(outPath, tpqn);
 }
 
 void MidiPhraseBuilder::writeToFile(const std::string& outPath, int tpqn)

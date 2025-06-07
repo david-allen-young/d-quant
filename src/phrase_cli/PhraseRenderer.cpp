@@ -141,10 +141,11 @@ void generate_phrase_midi(const PhraseArgs& phrase, const SongContext& context, 
     //
 
     //auto pitchEnv = intonizer::applyPitchEnvelope(breathCC, dynStart == dynEnd, centsPerDeltaCC, compensation);
-    
 
-    MidiPhraseBuilder phraseBuilder;
     int tpqn = 480;
+    MidiController expressionCC = MidiController::Breath; // TODO: get from context
+    MidiPhraseBuilder phraseBuilder(tpqn, expressionCC);
+
     double currentBeat = 0.0;
 
     //auto dynPreset = getRangeForPreset(presetFromStr(args.dyn_preset));
@@ -155,6 +156,9 @@ void generate_phrase_midi(const PhraseArgs& phrase, const SongContext& context, 
 
     auto fullPhraseBreathCC = generateBreathCCFromEnvelope(envelope, phraseDuration, dynStart, dynEnd, dynPreset.first, dynPreset.second);
     auto fullPhrasePitchBend = intonizer::applyPitchEnvelope(fullPhraseBreathCC, dynStart == dynEnd, centsPerDeltaCC, compensation);
+
+    phraseBuilder.addExpression(fullPhraseBreathCC);
+    phraseBuilder.addIntonation(fullPhrasePitchBend);
 
     for (size_t i = 0; i < phrase.notes.size(); ++i)
     {
@@ -190,16 +194,17 @@ void generate_phrase_midi(const PhraseArgs& phrase, const SongContext& context, 
         }
         builder.setVelocity(ccSegment[velocityIdx].second);
 
-        // === Partition & load pitch bend
-        //auto pbSegment = intonizer::applyPitchEnvelope(ccSegment, dynStart == dynEnd, centsPerDeltaCC, compensation);
-        auto pbSegment = extractEnvelopeSegment(fullPhrasePitchBend, start, end);
-        for (const auto& pt : pbSegment)
-        {
-            builder.addIntonation(pt.time, pt.value);
-        }
+        //// === Partition & load pitch bend
+        ////auto pbSegment = intonizer::applyPitchEnvelope(ccSegment, dynStart == dynEnd, centsPerDeltaCC, compensation);
+        //auto pbSegment = extractEnvelopeSegment(fullPhrasePitchBend, start, end);
+        //for (const auto& pt : pbSegment)
+        //{
+        //    builder.addIntonation(pt.time, pt.value);
+        //}
 
         auto notePtr = builder.build();
-        phraseBuilder.addNote(*notePtr, tpqn, MidiController::Breath);
+        //phraseBuilder.addNote(*notePtr, tpqn, MidiController::Breath);
+        phraseBuilder.addNote(*notePtr);
 
         currentBeat += nominalDur;
     }
