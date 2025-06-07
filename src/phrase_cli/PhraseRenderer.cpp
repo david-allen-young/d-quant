@@ -195,8 +195,7 @@ void generate_phrase_midi(const PhraseArgs& phrase, const SongContext& context, 
         auto pbSegment = extractEnvelopeSegment(fullPhrasePitchBend, start, end);
         for (const auto& pt : pbSegment)
         {
-            //temp debug
-            //builder.addIntonation(pt.time, pt.value);
+            builder.addIntonation(pt.time, pt.value);
         }
 
         auto notePtr = builder.build();

@@ -160,7 +160,8 @@ std::vector<Point> extractEnvelopeSegment(const std::vector<Point>& envelope, do
     {
         if (pt.time >= noteStart && pt.time < noteEnd)
         {
-            result.emplace_back(pt.time - noteStart, pt.value); // relative time
+            //result.emplace_back(pt.time - noteStart, pt.value); // relative time
+            result.emplace_back(pt.time, pt.value); // absolute time
         }
     }
     return result;
@@ -173,7 +174,8 @@ std::vector<std::pair<double, int>> extractEnvelopeSegment(const std::vector<std
     {
         if (time >= noteStart && time < noteEnd)
         {
-            result.emplace_back(time - noteStart, value); // relative time
+            //result.emplace_back(time - noteStart, value); // relative time
+            result.emplace_back(time, value); // absolute time
         }
     }
     return result;
