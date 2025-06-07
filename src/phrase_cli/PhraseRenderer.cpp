@@ -195,7 +195,8 @@ void generate_phrase_midi(const PhraseArgs& phrase, const SongContext& context, 
         auto pbSegment = extractEnvelopeSegment(fullPhrasePitchBend, start, end);
         for (const auto& pt : pbSegment)
         {
-            builder.addIntonation(pt.time, pt.value);
+            //temp debug
+            //builder.addIntonation(pt.time, pt.value);
         }
 
         auto notePtr = builder.build();
@@ -215,7 +216,7 @@ void generate_phrase_midi(const PhraseArgs& phrase, const SongContext& context, 
     auto rhyPath = (csvOutDir / (options.output_id + "_rhythm.csv")).string();
 
     std::vector<std::pair<double, double>> ccAsPairs;
-    for (const auto& pt : envelopePoints)
+    for (const auto& pt : envelope)
     {
         double val = pt.value;
         if (val < 1.0 / 256.0)
