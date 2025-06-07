@@ -19,3 +19,4 @@ void analyzeEnvelopes(const std::vector<std::vector<double>>& envelopes, std::ve
 std::vector<double> morphFromTwoInputs(const Morph2Params& params);
 double computeEnvelopeMean(const std::vector<Point>& envelope);
 std::vector<Point> extractEnvelopeSegment(const std::vector<Point>& envelope, double noteStart, double noteEnd);
+std::vector<std::pair<double, int>> extractEnvelopeSegment(const std::vector<std::pair<double, int>>& envelope, double noteStart, double noteEnd);
