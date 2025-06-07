@@ -14,6 +14,13 @@
 using dynamizer::ExpressionMark;
 using dynamizer::markFromStr;
 
+#include "NoteBuilder.h"
+#include "IntonationGenerator.h"
+#include "intonizer.h"
+#include "ExpressionGenerator.h"
+#include "EnvelopeUtils.h"
+#include "MidiPhraseBuilder.h"
+
 namespace
 {
 
