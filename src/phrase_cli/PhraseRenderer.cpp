@@ -148,7 +148,7 @@ void generate_phrase_midi(const PhraseArgs& phrase, const SongContext& context, 
     double currentBeat = 0.0;
 
     //auto dynPreset = getRangeForPreset(presetFromStr(args.dyn_preset));
-    auto dynPreset = dynamizer::getRangeForPreset(dynamizer::presetFromStr("pp-to-ff"));
+    auto dynPreset = dynamizer::getRangeForPreset(dynamizer::presetFromStr(context.dyn_preset));
 
     double centsPerDeltaCC = 1.2;
     double compensation = (dynStart == dynEnd) ? 1.25 : 0.25;
