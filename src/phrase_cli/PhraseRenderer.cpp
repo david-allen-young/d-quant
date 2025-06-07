@@ -129,18 +129,76 @@ void generate_phrase_midi(const PhraseArgs& phrase, const SongContext& context, 
         envelope.emplace_back(pt.time * phraseDuration, pt.value);
     }
 
-    // Generate pitch bend from breathCC using intonizer
-    auto dynStart = markFromStr(phrase.dyn_start);
-    auto dynEnd = markFromStr(phrase.dyn_end);
-    double centsPerDeltaCC = 1.2;
-    double compensation = (dynStart == dynEnd) ? 1.25 : 0.25;
+    //// Generate pitch bend from breathCC using intonizer
+    //auto dynStart = markFromStr(phrase.dyn_start);
+    //auto dynEnd = markFromStr(phrase.dyn_end);
+    //double centsPerDeltaCC = 1.2;
+    //double compensation = (dynStart == dynEnd) ? 1.25 : 0.25;
+
+    ////auto dynPreset = getRangeForPreset(presetFromStr(args.dyn_preset));
+    //auto dynPreset = dynamizer::getRangeForPreset(dynamizer::presetFromStr("pp-to-ff"));
+    //auto breathCC = generateBreathCCFromEnvelope(envelope, phraseDuration, dynStart, dynEnd, dynPreset.first, dynPreset.second);
+    //
+
+    //auto pitchEnv = intonizer::applyPitchEnvelope(breathCC, dynStart == dynEnd, centsPerDeltaCC, compensation);
+    
+
+    MidiPhraseBuilder phraseBuilder;
+    int tpqn = 480;
+    double currentBeat = 0.0;
 
     //auto dynPreset = getRangeForPreset(presetFromStr(args.dyn_preset));
     auto dynPreset = dynamizer::getRangeForPreset(dynamizer::presetFromStr("pp-to-ff"));
-    auto breathCC = generateBreathCCFromEnvelope(envelope, phraseDuration, dynStart, dynEnd, dynPreset.first, dynPreset.second);
-    
 
-    auto pitchEnv = intonizer::applyPitchEnvelope(breathCC, dynStart == dynEnd, centsPerDeltaCC, compensation);
+    double centsPerDeltaCC = 1.2;
+    double compensation = (dynStart == dynEnd) ? 1.25 : 0.25;
+
+    for (size_t i = 0; i < phrase.notes.size(); ++i)
+    {
+        const auto& note = phrase.notes[i];
+        int midiNoteNum = pitchToMidi(note.pitch);
+
+        double nominalDur = note.duration_beats;
+        double start = currentBeat;
+        double dur = nominalDur;
+
+        NoteBuilderMidi builder;
+        builder.setKeyNumber(midiNoteNum);
+
+        rhythmizer::applyTiming(builder, start, dur, note.articulation);
+        builder.setVelocity(64); // Will override below
+
+        double end = start + dur;
+        auto rawSegment = extractEnvelopeSegment(envelope, start, end);
+
+        // === Partition & load expression
+        auto ccSegment = generateBreathCCFromEnvelope(rawSegment, phraseDuration, dynStart, dynEnd, dynPreset.first, dynPreset.second);
+        for (const auto& [t, val] : ccSegment)
+        {
+            builder.addExpression(t, val);
+        }
+
+        // Velocity
+        size_t velocityIdx = std::min(2ULL, std::max(0ULL, ccSegment.size() - 1));
+        if (ccSegment.empty())
+        {
+            throw std::runtime_error("Expression envelope empty");
+        }
+        builder.setVelocity(ccSegment[velocityIdx].second);
+
+        // === Partition & load pitch bend
+        auto pbSegment = intonizer::applyPitchEnvelope(ccSegment, dynStart == dynEnd, centsPerDeltaCC, compensation);
+
+        for (const auto& pt : pbSegment)
+        {
+            builder.addIntonation(pt.time, pt.value);
+        }
+
+        auto notePtr = builder.build();
+        phraseBuilder.addNote(*notePtr, tpqn, MidiController::Breath);
+
+        currentBeat += nominalDur;
+    }
 
 
     //std::cout << "[INFO] (Stub) Would write MIDI + envelope CSV to: "
