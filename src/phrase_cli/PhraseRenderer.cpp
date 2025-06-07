@@ -118,6 +118,26 @@ void generate_phrase_midi(const PhraseArgs& phrase, const SongContext& context, 
         current_time += nominalDur;
     }
 
+    // === Rescale breath and pitch envelope across full phrase ===
+    double phraseDuration = current_time; // already accumulated
+    std::vector<Point> scaledBreathCC, scaledPitchBend;
+
+    for (const auto& pt : envelopePoints)
+    {
+        scaledBreathCC.emplace_back(pt.time * phraseDuration, pt.value);
+    }
+
+    // Generate pitch bend from breathCC using intonizer
+    auto dynStart = markFromStr(phrase.dyn_start);
+    auto dynEnd = markFromStr(phrase.dyn_end);
+    double centsPerDeltaCC = 1.2;
+    double compensation = (dynStart == dynEnd) ? 1.25 : 0.25;
+
+    auto pitchEnv = intonizer::applyPitchEnvelope(scaledBreathCC, dynStart == dynEnd, centsPerDeltaCC, compensation);
+    for (const auto& [t, v] : pitchEnv)
+    {
+        scaledPitchBend.emplace_back(t, v);
+    }
 
     //std::cout << "[INFO] (Stub) Would write MIDI + envelope CSV to: "
     //          << options.output_dir << "/" << options.output_id << ".mid/.csv\n";
